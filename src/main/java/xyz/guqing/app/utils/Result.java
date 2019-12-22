@@ -56,6 +56,15 @@ public class Result<T> {
         Map<String, Object> obj = new HashMap<String, Object>();
         obj.put("code", -1);
         obj.put("message", "错误");
+        obj.put("data", "");
+        return new Result(obj);
+    }
+
+    public static Result fail(int errno, String message, Object data) {
+        Map<String, Object> obj = new HashMap<String, Object>(16);
+        obj.put("code", errno);
+        obj.put("message", message);
+        obj.put("data", data);
         return new Result(obj);
     }
 
@@ -63,47 +72,56 @@ public class Result<T> {
         Map<String, Object> obj = new HashMap<String, Object>(16);
         obj.put("code", errno);
         obj.put("message", message);
+        obj.put("data", "");
         return new Result(obj);
     }
 
-    public static Object badArgument() {
+    public static Result badArgument() {
         return fail(401, "参数不对");
     }
 
-    public static Object badArgumentValue() {
+    public static Result badArgument(Map<String, String> validMap) {
+        return fail(401, "参数不对", validMap);
+    }
+
+    public static Result badArgumentValue() {
         return fail(402, "参数值不对");
     }
 
-    public static Object unLogin() {
+    public static Result businessError(String message) {
+        return fail(500, message);
+    }
+
+    public static Result unLogin() {
         return fail(501, "请登录");
     }
 
-    public static Object serious() {
+    public static Result serious() {
         return fail(502, "系统内部错误");
     }
 
-    public static Object unSupport() {
+    public static Result unSupport() {
         return fail(503, "业务不支持");
     }
 
-    public static Object updatedDateExpired() {
+    public static Result updatedDateExpired() {
         return fail(504, "更新数据已经失效");
     }
 
-    public static Object updatedDataFailed() {
+    public static Result updatedDataFailed() {
         return fail(505, "更新数据失败");
     }
 
-    public static Object unauthorized() {
+    public static Result unauthorized() {
         // 没有操作权限即未授权
         return fail(506, "无操作权限");
     }
 
-    public static Object RPCFailed() {
+    public static Result RPCFailed() {
         return fail(507, "远程调用失败");
     }
 
-    public static Object repeatOps() {
+    public static Result repeatOps() {
         return fail(508, "重复操作");
     }
 }

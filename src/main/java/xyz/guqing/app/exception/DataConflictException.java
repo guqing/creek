@@ -6,13 +6,13 @@ package xyz.guqing.app.exception;
  * @author guqing
  * @date 2019-12-22 14:49
  */
-public class AlreadyExistsException extends BadRequestException {
+public class DataConflictException extends BadRequestException {
 
-    public AlreadyExistsException(String message) {
+    public DataConflictException(String message) {
         super(message);
     }
 
-    public AlreadyExistsException(String message, Throwable cause) {
+    public DataConflictException(String message, Throwable cause) {
         super(message, cause);
     }
 
