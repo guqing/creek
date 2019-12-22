@@ -1,13 +1,13 @@
-package xyz.guqing.springbootjpastarter;
+package xyz.guqing.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringbootJpaStarterApplication {
+public class AppApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringbootJpaStarterApplication.class, args);
+        SpringApplication.run(AppApplication.class, args);
     }
 
 }
