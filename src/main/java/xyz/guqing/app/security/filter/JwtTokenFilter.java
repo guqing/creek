@@ -19,6 +19,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
+/**
+ * @author guqing
+ * @date 2019-12-22 24:53
+ */
 @Component
 @EnableConfigurationProperties({SecurityProperties.class})
 public class JwtTokenFilter extends OncePerRequestFilter {

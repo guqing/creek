@@ -11,6 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
+/**
+ * @author guqing
+ * @date 2019-12-22 24:53
+ */
 @Component
 public class MyLogoutSuccessHandler implements LogoutSuccessHandler {
 

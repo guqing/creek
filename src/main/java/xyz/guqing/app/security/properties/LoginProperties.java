@@ -4,9 +4,10 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+
 /**
  * @author guqing
- * @date 2019/8/10
+ * @date 2019-12-22 24:53
  */
 @Data
 @Component

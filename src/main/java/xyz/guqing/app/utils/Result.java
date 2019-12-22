@@ -94,7 +94,8 @@ public class Result<T> {
         return fail(505, "更新数据失败");
     }
 
-    public static Object unauthz() {
+    public static Object unauthorized() {
+        // 没有操作权限即未授权
         return fail(506, "无操作权限");
     }
 

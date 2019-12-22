@@ -11,6 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * @author guqing
+ * @date 2019-12-22 24:53
+ */
 @Component
 public class MyAccessDeniedHandler implements AccessDeniedHandler {
 
@@ -18,6 +22,6 @@ public class MyAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException, ServletException {
         httpServletResponse.setContentType("application/json;charset=UTF-8");
         // 访问被拒绝
-        httpServletResponse.getWriter().write(JSON.toJSONString(Result.unauthz()));
+        httpServletResponse.getWriter().write(JSON.toJSONString(Result.unauthorized()));
     }
 }

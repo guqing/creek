@@ -15,9 +15,10 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+
 /**
  * @author guqing
- * @date 2019/8/11
+ * @date 2019-12-22 24:53
  */
 @Service
 public class MyUserDetailsServiceImpl implements UserDetailsService {

@@ -7,6 +7,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
+
+/**
+ * @author guqing
+ * @date 2019-12-22 24:53
+ */
 @Data
 @Component
 @ConfigurationProperties("app")

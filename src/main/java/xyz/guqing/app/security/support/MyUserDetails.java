@@ -9,9 +9,10 @@ import xyz.guqing.app.model.entity.Role;
 
 import java.util.*;
 
+
 /**
  * @author guqing
- * @date 2019/8/9
+ * @date 2019-12-22 24:53
  */
 @Data
 public class MyUserDetails implements UserDetails {
