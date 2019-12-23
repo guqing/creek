@@ -1,8 +1,9 @@
 package xyz.guqing.app.utils;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.data.domain.Page;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,70 +11,40 @@ import java.util.Map;
  * @author guqing
  * @date 2019/8/9
  */
+@Data
+@AllArgsConstructor
 public class Result<T> {
-    private Map<String, Object> result;
+    private Integer code;
+    private String message;
+    private T data;
 
-    private Result(Map<String, Object> result) {
-        this.result = result;
+    public static Result<String> ok() {
+        return new Result<String>(0, "成功", "");
     }
 
-    public static Result ok() {
-        Map<String, Object> result = new HashMap<String, Object>();
-        result.put("code", 0);
-        result.put("message", "成功");
-        return new Result(result);
+    public static<T> Result<T> ok(T data) {
+        return new Result<T>(0, "成功", data);
     }
 
-    public static<T> Result ok(T data) {
-        Map<String, Object> result = new HashMap<String, Object>(16);
-        result.put("code", 0);
-        result.put("message", "成功");
-        result.put("data", data);
-        return new Result(result);
-    }
-
-    public static<T> Result okList(Page<T> page) {
-        Map<String, Object> data = new HashMap<String, Object>();
-        data.put("list", page.getContent());
-
-        data.put("total", page.getTotalElements());
-        data.put("pages", page.getTotalPages());
-        data.put("page", page.getNumber());
-        data.put("limit", page.getSize());
-
-        return new Result(data);
+    public static<T> Result<PageInfo<T>> okList(Page<T> page) {
+        PageInfo<T> pageInfo = PageInfo.convertTo(page);
+        return ok(pageInfo);
     }
 
     public static<T> Result okList(List<T> list) {
-        Map<String, Object> result = new HashMap<String, Object>(16);
-        result.put("code", 0);
-        result.put("message", "成功");
-        result.put("list", list);
-        return new Result(result);
+        return ok(PageInfo.convertTo(list));
     }
 
-    public static Result fail() {
-        Map<String, Object> obj = new HashMap<String, Object>();
-        obj.put("code", -1);
-        obj.put("message", "错误");
-        obj.put("data", "");
-        return new Result(obj);
+    public static Result<String> fail() {
+        return new Result<>(-1, "错误", "");
     }
 
-    public static Result fail(int errno, String message, Object data) {
-        Map<String, Object> obj = new HashMap<String, Object>(16);
-        obj.put("code", errno);
-        obj.put("message", message);
-        obj.put("data", data);
-        return new Result(obj);
+    public static<T> Result<T> fail(int errno, String message, T data) {
+        return new Result<>(errno, message, data);
     }
 
-    public static Result fail(int errno, String message) {
-        Map<String, Object> obj = new HashMap<String, Object>(16);
-        obj.put("code", errno);
-        obj.put("message", message);
-        obj.put("data", "");
-        return new Result(obj);
+    public static Result<String> fail(int errno, String message) {
+        return fail(errno, message, "");
     }
 
     public static Result badArgument() {
