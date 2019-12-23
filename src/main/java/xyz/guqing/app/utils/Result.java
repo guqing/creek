@@ -59,6 +59,14 @@ public class Result<T> {
         return fail(402, "参数值不对");
     }
 
+    public static Result loginFail() {
+        return fail(403, "认证失败，用户名或密码不正确");
+    }
+
+    public static Result dataNotFound(String message) {
+        return fail(403, message);
+    }
+
     public static Result businessError(String message) {
         return fail(500, message);
     }
