@@ -15,9 +15,14 @@ import xyz.guqing.app.model.dto.UserDTO;
 import xyz.guqing.app.model.entity.Permission;
 import xyz.guqing.app.model.entity.Role;
 import xyz.guqing.app.model.entity.User;
+import xyz.guqing.app.model.params.LoginParam;
 import xyz.guqing.app.model.support.LoginTypeConstant;
 import xyz.guqing.app.model.support.UserStatusConstant;
 import xyz.guqing.app.repository.UserRepository;
+import xyz.guqing.app.security.support.MyUserDetails;
+import xyz.guqing.app.security.utils.IpUtil;
+import xyz.guqing.app.security.utils.JwtTokenUtil;
+import xyz.guqing.app.utils.Result;
 
 import java.util.*;
 import java.util.Optional;
@@ -29,12 +34,15 @@ import java.util.Optional;
 @Service
 @CacheConfig(cacheNames = "userService")
 public class UserService {
+    private final JwtTokenUtil jwtTokenUtil;
     private final UserRepository userRepository;
     private final PermissionService permissionService;
 
     @Autowired
-    public UserService(UserRepository userRepository,
+    public UserService(JwtTokenUtil jwtTokenUtil,
+                       UserRepository userRepository,
                        PermissionService permissionService) {
+        this.jwtTokenUtil = jwtTokenUtil;
         this.userRepository = userRepository;
         this.permissionService = permissionService;
     }
@@ -95,5 +103,25 @@ public class UserService {
 
         roleDTO.setPermissions(permissionDtoList);
         return userDTO;
+    }
+
+    /**
+     * 用户登录
+     * @param loginParam 登录入数
+     * @param userDetails 用户信息
+     * @param ip 登录ip
+     * @return 如果登录成功返回token，否则返回null
+     */
+    public String login(LoginParam loginParam, MyUserDetails userDetails, String ip) {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        boolean isPasswordEqual = bCryptPasswordEncoder.matches(loginParam.getPassword(), userDetails.getPassword());;
+        if(isPasswordEqual) {
+            // 颁发token
+            String token = jwtTokenUtil.generateToken(userDetails);
+            // 更新用户最后登录时间和ip
+            updateLoginTime(userDetails.getId(), ip);
+            return token;
+        }
+        return null;
     }
 }

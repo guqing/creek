@@ -1,6 +1,8 @@
 package xyz.guqing.app.model.params;
 
 import lombok.Data;
+import xyz.guqing.app.model.entity.User;
+import xyz.guqing.app.model.support.InputConverter;
 import xyz.guqing.app.model.support.LoginTypeConstant;
 
 import javax.validation.constraints.NotBlank;
@@ -13,7 +15,7 @@ import javax.validation.constraints.Size;
  * @date 2019-10-18 19:07
  */
 @Data
-public class LoginParam {
+public class LoginParam implements InputConverter<User> {
     @NotBlank(message = "用户名或邮箱不能为空")
     @Size(max = 255, message = "用户名或邮箱的字符长度不能超过 {max}")
     private String username;
