@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import xyz.guqing.app.model.entity.User;
 import xyz.guqing.app.security.properties.SecurityProperties;
 import xyz.guqing.app.security.properties.TokenProperties;
 import xyz.guqing.app.security.support.MyUserDetails;
@@ -111,10 +112,19 @@ public class JwtTokenUtil implements Serializable {
     }
 
     public String generateToken(MyUserDetails userDetails) {
+        Map<String, Object> claims = getClaimsMap(userDetails.getUsername());
+        return generateToken(claims);
+    }
+
+    private Map<String, Object> getClaimsMap(String username) {
         Map<String, Object> claims = new HashMap<>(16);
-        claims.put(CLAIM_KEY_USER_ID, userDetails.getId());
-        claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
+        claims.put(CLAIM_KEY_USERNAME, username);
         claims.put(CLAIM_KEY_CREATED, new Date());
+        return claims;
+    }
+
+    public String generateToken(User user) {
+        Map<String, Object> claims = getClaimsMap(user.getUsername());
         return generateToken(claims);
     }
 

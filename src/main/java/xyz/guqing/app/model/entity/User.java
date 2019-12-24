@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -24,6 +25,10 @@ public class User {
     private Integer gender;
 
     private Date birthday;
+
+    private String location;
+
+    private String blog;
 
     private String mobile;
 
@@ -49,4 +54,7 @@ public class User {
 
     @ManyToOne(fetch=FetchType.EAGER)
     private Role role;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
+    private List<UserConnect> userConnects;
 }

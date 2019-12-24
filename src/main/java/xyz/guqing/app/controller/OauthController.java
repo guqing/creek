@@ -41,7 +41,6 @@ public class OauthController {
     @Autowired
     public OauthController(MyUserDetailsServiceImpl userDetailsService,
                           AuthRequestFactory factory,
-                          JwtTokenUtil jwtTokenUtil,
                           UserService userService) {
         this.userDetailsService = userDetailsService;
         this.factory = factory;
@@ -60,11 +59,7 @@ public class OauthController {
         // 校验登录信息
         String token = userService.login(loginParam, userDetails, ip);
 
-        if(token != null) {
-            return Result.ok(token);
-        }
-
-        return Result.loginFail();
+        return Result.ok(token);
     }
 
     @GetMapping("/login/{type}")
@@ -79,9 +74,12 @@ public class OauthController {
         AuthRequest authRequest = getAuthRequest(type);
         // 登录后获取到响应信息
         AuthResponse response = authRequest.login(callback);
+        if(response.getCode() != 2000) {
+            return Result.loginFail();
+        }
+        String token = userService.oauthLogin(response);
         log.info("【response】= {}", JSONUtil.toJsonStr(response));
-
-        return Result.ok();
+        return Result.ok(token);
     }
 
     private AuthRequest getAuthRequest(String type) {

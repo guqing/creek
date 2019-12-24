@@ -1,5 +1,9 @@
 package xyz.guqing.app.service;
 
+import me.zhyd.oauth.enums.AuthUserGender;
+import me.zhyd.oauth.model.AuthResponse;
+import me.zhyd.oauth.model.AuthToken;
+import me.zhyd.oauth.model.AuthUser;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -9,15 +13,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import xyz.guqing.app.exception.AuthFailException;
+import xyz.guqing.app.exception.ServiceException;
 import xyz.guqing.app.model.dto.PermissionDTO;
 import xyz.guqing.app.model.dto.RoleDTO;
 import xyz.guqing.app.model.dto.UserDTO;
 import xyz.guqing.app.model.entity.Permission;
 import xyz.guqing.app.model.entity.Role;
 import xyz.guqing.app.model.entity.User;
+import xyz.guqing.app.model.entity.UserConnect;
 import xyz.guqing.app.model.params.LoginParam;
+import xyz.guqing.app.model.params.OauthUserParam;
 import xyz.guqing.app.model.support.LoginTypeConstant;
 import xyz.guqing.app.model.support.UserStatusConstant;
+import xyz.guqing.app.repository.UserConnectRepository;
 import xyz.guqing.app.repository.UserRepository;
 import xyz.guqing.app.security.support.MyUserDetails;
 import xyz.guqing.app.security.utils.IpUtil;
@@ -37,14 +46,16 @@ public class UserService {
     private final JwtTokenUtil jwtTokenUtil;
     private final UserRepository userRepository;
     private final PermissionService permissionService;
-
+    private final UserConnectRepository userConnectRepository;
     @Autowired
     public UserService(JwtTokenUtil jwtTokenUtil,
                        UserRepository userRepository,
-                       PermissionService permissionService) {
+                       PermissionService permissionService,
+                       UserConnectRepository userConnectRepository) {
         this.jwtTokenUtil = jwtTokenUtil;
         this.userRepository = userRepository;
         this.permissionService = permissionService;
+        this.userConnectRepository = userConnectRepository;
     }
 
     @Cacheable(key = "#username", unless = "#result==null")
@@ -114,14 +125,61 @@ public class UserService {
      */
     public String login(LoginParam loginParam, MyUserDetails userDetails, String ip) {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        boolean isPasswordEqual = bCryptPasswordEncoder.matches(loginParam.getPassword(), userDetails.getPassword());;
-        if(isPasswordEqual) {
-            // 颁发token
-            String token = jwtTokenUtil.generateToken(userDetails);
-            // 更新用户最后登录时间和ip
-            updateLoginTime(userDetails.getId(), ip);
-            return token;
+        boolean passwordEqual = bCryptPasswordEncoder.matches(loginParam.getPassword(), userDetails.getPassword());;
+        if(!passwordEqual) {
+            throw new AuthFailException("用户密码不正确");
         }
-        return null;
+        // 颁发token
+        String token = jwtTokenUtil.generateToken(userDetails);
+        // 更新用户最后登录时间和ip
+        updateLoginTime(userDetails.getId(), ip);
+        return token;
+    }
+
+    @Transactional(rollbackFor = ServiceException.class)
+    public String oauthLogin(AuthResponse response) {
+        AuthUser authUser = (AuthUser)response.getData();
+        UserConnect userConnect = getUserConnect(authUser);
+        if(userConnect.getAccessToken() == null) {
+            // 登录失败
+            throw new AuthFailException("第三方授权登录失败");
+        }
+
+        // 登录成功
+        Optional<UserConnect> userConnectOptional = userConnectRepository.findByUuidAndProviderId(userConnect.getUuid(), userConnect.getProviderId());
+        // 判断数据库是存在一条UserConnect的记录
+        if(userConnectOptional.isPresent()) {
+            UserConnect userConnectModel = userConnectOptional.get();
+            User user = userConnectModel.getUser();
+            return jwtTokenUtil.generateToken(user);
+        } else {
+            // 登录成功但是数据库没有UserConnect记录保存一条,并默认根据user connect新增用户，然后颁发token
+            User user = userRepository.save(userConnect.getUser());
+            userConnect.setUser(user);
+            UserConnect newUserConnectRecord = userConnectRepository.save(userConnect);
+            return jwtTokenUtil.generateToken(newUserConnectRecord.getUser());
+        }
+    }
+
+    private UserConnect getUserConnect(AuthUser authUser) {
+        // 根据AuthUser创建UserConnect
+        UserConnect userConnect = new UserConnect();
+        userConnect.setUuid(authUser.getUuid());
+        userConnect.setProviderId(authUser.getSource());
+        AuthUserGender gender = authUser.getGender();
+
+        AuthToken authToken = authUser.getToken();
+        userConnect.setOpenId(authToken.getOpenId());
+        userConnect.setAccessToken(authToken.getAccessToken());
+        userConnect.setTokenType(authToken.getTokenType());
+        userConnect.setExpireIn(authToken.getExpireIn());
+
+        // 拷贝User属性
+        OauthUserParam oauthUserParam = new OauthUserParam();
+        BeanUtils.copyProperties(oauthUserParam, authUser);
+        oauthUserParam.setGender(gender.getCode());
+        User user = oauthUserParam.convertTo();
+        userConnect.setUser(user);
+        return userConnect;
     }
 }
