@@ -1,8 +1,10 @@
 package xyz.guqing.app.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import me.zhyd.oauth.exception.AuthException;
 import org.springframework.web.bind.annotation.*;
 import xyz.guqing.app.exception.ServiceException;
+import xyz.guqing.app.exception.UnsupportedOauthTypeException;
 import xyz.guqing.app.utils.Result;
 
 /**
@@ -19,7 +21,13 @@ public class GlobalExceptionResolver {
         return Result.serious();
     }
 
-    @ExceptionHandler(ServiceException.class)
+    @ExceptionHandler(UnsupportedOauthTypeException.class)
+    public Result handleOauthException(UnsupportedOauthTypeException e) {
+        log.debug("第三方登录异常，错误信息：{}", e.getMessage());
+        return Result.loginFail("第三方登录出错:" + e.getMessage());
+    }
+
+
     public Result handleOpdRuntimeException(ServiceException e) {
         log.debug("业务层异常，错误信息：{}", e.getMessage());
         return Result.businessError(e.getMessage());

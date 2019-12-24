@@ -63,6 +63,10 @@ public class Result<T> {
         return fail(403, "认证失败，用户名或密码不正确");
     }
 
+    public static Result loginFail(String message) {
+        return fail(403, message);
+    }
+
     public static Result dataNotFound(String message) {
         return fail(403, message);
     }

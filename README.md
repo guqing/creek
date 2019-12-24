@@ -20,5 +20,6 @@ CREATE DATABASE `xxx`;
 - 跨域配置
 - caffeine缓存
 - 统一项目风格
+- 支持第三方社交登录
 
 其他特性正在开发中...
