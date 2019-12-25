@@ -5,7 +5,9 @@ import xyz.guqing.app.model.entity.User;
 import xyz.guqing.app.model.support.OutputConverter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 用户信息dto

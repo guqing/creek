@@ -1,5 +1,7 @@
 package xyz.guqing.app.model.params;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import xyz.guqing.app.model.entity.User;
 import xyz.guqing.app.model.support.InputConverter;
@@ -21,7 +23,7 @@ public class LoginParam implements InputConverter<User> {
     private String username;
 
     @NotBlank(message = "登陆密码不能为空")
-    @Size(max = 100, message = "用户密码字符长度不能超过 {max}")
+    @ApiModelProperty(value="密码" ,required=true)
     private String password;
 
     private Integer loginType = LoginTypeConstant.USERNAME;

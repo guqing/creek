@@ -2,6 +2,9 @@ package xyz.guqing.app.controller;
 
 import cn.hutool.json.JSONUtil;
 import com.xkcoding.justauth.AuthRequestFactory;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
@@ -34,6 +37,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping("/user")
+@Api(value = "UserController-用户api")
 public class UserController {
     private final UserService userService;
 
@@ -42,6 +46,7 @@ public class UserController {
     }
 
     @GetMapping("/info")
+    @ApiOperation(value="获取用户信息", notes="需要先登录获取Token才可以访问")
     public Result<UserDTO> getUserInfo(HttpServletRequest request) {
         MyUserDetails user = (MyUserDetails) SecurityUserHelper.getCurrentPrincipal();
         Integer userId = user.getId();

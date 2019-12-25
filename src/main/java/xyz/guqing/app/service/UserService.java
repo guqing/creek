@@ -137,6 +137,12 @@ public class UserService {
         return token;
     }
 
+    /**
+     * 第三方登录功能
+     * @param response 第三方登录响应对象
+     * @param ip 用户的ip地址
+     * @return 登录成功返回token，如果登录失败抛出AuthFailException异常由全局统一处理
+     */
     @Transactional(rollbackFor = ServiceException.class)
     public String oauthLogin(AuthResponse response, String ip) {
         AuthUser authUser = (AuthUser)response.getData();

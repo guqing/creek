@@ -2,6 +2,9 @@ package xyz.guqing.app.controller;
 
 import cn.hutool.json.JSONUtil;
 import com.xkcoding.justauth.AuthRequestFactory;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
@@ -34,6 +37,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping("/auth")
+@Api(value = "OauthController-用户登录api")
 public class OauthController {
     /**
      * 第三方登录成功后的返回code，如果不是此值则说明登录失败
@@ -54,6 +58,7 @@ public class OauthController {
     }
 
     @PostMapping("/login")
+    @ApiOperation(value="使用系统账号登录", notes="支持用户名、邮箱地址、手机号码登录")
     public Result login(@RequestBody @Valid LoginParam loginParam, HttpServletRequest request) {
         MyUserDetails userDetails = userDetailsService.loadUserByUsername(loginParam.getUsername(), loginParam.getLoginType());
 
@@ -69,6 +74,7 @@ public class OauthController {
     }
 
     @GetMapping("/login/{type}")
+    @ApiOperation(value="前往第三方登录页", notes="支持的第三方平台参考：https://github.com/justauth/JustAuth")
     public void renderAuth(@PathVariable String type, HttpServletResponse response) throws IOException {
         AuthRequest authRequest = getAuthRequest(type);
         // 生成授权地址
@@ -76,6 +82,8 @@ public class OauthController {
     }
 
     @RequestMapping("/{type}/callback")
+    @ApiOperation(value="第三方登录授权回调", notes="登录成功后的回调地址，系统会根据回调生成token")
+    @ApiImplicitParam(paramType="path", name = "type", value = "登录类型，例如qq,weibo,github", required = true, dataType = "String")
     public Result login(@PathVariable String type, AuthCallback callback, HttpServletRequest request) {
         AuthRequest authRequest = getAuthRequest(type);
         // 登录后获取到响应信息
