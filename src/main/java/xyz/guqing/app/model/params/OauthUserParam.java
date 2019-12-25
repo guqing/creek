@@ -17,6 +17,7 @@ public class OauthUserParam implements InputConverter<User> {
     private String nickname;
     private Integer gender;
     private String location;
+    private String blog;
     private String remark;
     private String avatar;
     private String source;

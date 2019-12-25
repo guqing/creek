@@ -25,6 +25,7 @@ import xyz.guqing.app.model.entity.UserConnect;
 import xyz.guqing.app.model.params.LoginParam;
 import xyz.guqing.app.model.params.OauthUserParam;
 import xyz.guqing.app.model.support.LoginTypeConstant;
+import xyz.guqing.app.model.support.UserConnectConverter;
 import xyz.guqing.app.model.support.UserStatusConstant;
 import xyz.guqing.app.repository.UserConnectRepository;
 import xyz.guqing.app.repository.UserRepository;
@@ -137,9 +138,10 @@ public class UserService {
     }
 
     @Transactional(rollbackFor = ServiceException.class)
-    public String oauthLogin(AuthResponse response) {
+    public String oauthLogin(AuthResponse response, String ip) {
         AuthUser authUser = (AuthUser)response.getData();
-        UserConnect userConnect = getUserConnect(authUser);
+        UserConnect userConnect = UserConnectConverter.convertTo(authUser, ip);
+        System.out.println(userConnect);
         if(userConnect.getAccessToken() == null) {
             // 登录失败
             throw new AuthFailException("第三方授权登录失败");
@@ -159,27 +161,5 @@ public class UserService {
             UserConnect newUserConnectRecord = userConnectRepository.save(userConnect);
             return jwtTokenUtil.generateToken(newUserConnectRecord.getUser());
         }
-    }
-
-    private UserConnect getUserConnect(AuthUser authUser) {
-        // 根据AuthUser创建UserConnect
-        UserConnect userConnect = new UserConnect();
-        userConnect.setUuid(authUser.getUuid());
-        userConnect.setProviderId(authUser.getSource());
-        AuthUserGender gender = authUser.getGender();
-
-        AuthToken authToken = authUser.getToken();
-        userConnect.setOpenId(authToken.getOpenId());
-        userConnect.setAccessToken(authToken.getAccessToken());
-        userConnect.setTokenType(authToken.getTokenType());
-        userConnect.setExpireIn(authToken.getExpireIn());
-
-        // 拷贝User属性
-        OauthUserParam oauthUserParam = new OauthUserParam();
-        BeanUtils.copyProperties(oauthUserParam, authUser);
-        oauthUserParam.setGender(gender.getCode());
-        User user = oauthUserParam.convertTo();
-        userConnect.setUser(user);
-        return userConnect;
     }
 }

@@ -16,6 +16,7 @@ import xyz.guqing.app.security.support.MyUserDetailsServiceImpl;
 import xyz.guqing.app.security.utils.IpUtil;
 import xyz.guqing.app.security.utils.JwtTokenUtil;
 import xyz.guqing.app.service.UserService;
+import xyz.guqing.app.utils.IpUtils;
 import xyz.guqing.app.utils.Result;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,11 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/auth")
 public class OauthController {
+    /**
+     * 第三方登录成功后的返回code，如果不是此值则说明登录失败
+     */
+    private static final Integer JUST_AUTH_SUCCESS_CODE = 2000;
+
     private final AuthRequestFactory factory;
     private final MyUserDetailsServiceImpl userDetailsService;
     private final UserService userService;
@@ -70,15 +76,16 @@ public class OauthController {
     }
 
     @RequestMapping("/{type}/callback")
-    public Result login(@PathVariable String type, AuthCallback callback) {
+    public Result login(@PathVariable String type, AuthCallback callback, HttpServletRequest request) {
         AuthRequest authRequest = getAuthRequest(type);
         // 登录后获取到响应信息
         AuthResponse response = authRequest.login(callback);
-        if(response.getCode() != 2000) {
+        if(!JUST_AUTH_SUCCESS_CODE.equals(response.getCode())) {
             return Result.loginFail();
         }
-        String token = userService.oauthLogin(response);
+        String ipAddr = IpUtils.getIpAddr(request);
         log.info("【response】= {}", JSONUtil.toJsonStr(response));
+        String token = userService.oauthLogin(response, ipAddr);
         return Result.ok(token);
     }
 
