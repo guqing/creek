@@ -1,11 +1,16 @@
 package xyz.guqing.app.model.dto;
 
+import com.alibaba.fastjson.JSONArray;
 import lombok.Data;
 import xyz.guqing.app.model.entity.Permission;
 import xyz.guqing.app.model.entity.Resource;
 import xyz.guqing.app.model.support.OutputConverter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+
+import static xyz.guqing.app.utils.BeanUtils.updateProperties;
 
 /**
  * 权限DTO
@@ -33,5 +38,20 @@ public class PermissionDTO implements OutputConverter<PermissionDTO, Permission>
 	private String description;
 	private Integer available;
 	private String actions;
-	private Set<Resource> actionEntitySet;
+	private List<ResourceDTO> actionEntitySet;
+
+	@Override
+	public <T extends PermissionDTO> T convertFrom(Permission permission) {
+		updateProperties(permission, this);
+
+		List<Resource> resources = permission.getResources();
+		List<ResourceDTO> resourceDtoList = new ArrayList<>();
+		resources.forEach(resource -> {
+			ResourceDTO resourceDTO = new ResourceDTO().convertFrom(resource);
+			resourceDtoList.add(resourceDTO);
+		});
+		actionEntitySet = resourceDtoList;
+		actions = JSONArray.toJSONString(resourceDtoList);
+		return (T) this;
+	}
 }

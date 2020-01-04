@@ -86,7 +86,6 @@ public class UserService {
         User user = userOptional.get();
         Role role = user.getRole();
         List<Permission> permissions = role.getPermissions();
-//        Set<Permission> permissions = permissionService.findByRoleId(role.getId());
         return userDtoConverter(user, role, permissions);
     }
 

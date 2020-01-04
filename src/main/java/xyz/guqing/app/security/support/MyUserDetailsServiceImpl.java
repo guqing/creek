@@ -9,9 +9,6 @@ import xyz.guqing.app.model.entity.Resource;
 import xyz.guqing.app.model.entity.Role;
 import xyz.guqing.app.model.entity.User;
 import xyz.guqing.app.model.support.LoginTypeConstant;
-import xyz.guqing.app.service.PermissionService;
-import xyz.guqing.app.service.ResourceService;
-import xyz.guqing.app.service.RoleService;
 import xyz.guqing.app.service.UserService;
 import java.util.HashSet;
 import java.util.List;
@@ -52,11 +49,9 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
         userDetails.setId(user.getId());
         userDetails.setUsername(user.getUsername());
         userDetails.setPassword(user.getPassword());
-        System.out.println("user role" + user.getRole());
         Role role = user.getRole();
 
         // 设置权限url
-        System.out.println("user resources" + role.getPermissions());
         List<Permission> permissions = role.getPermissions();
 
         userDetails.setPermissionUrl(this.getActionUrl(permissions));
@@ -72,7 +67,6 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
      */
     private Set<String> getActionUrl(List<Permission> permissions) {
         Set<String> actionUrl = new HashSet<>();
-        System.out.println("user permissions" + permissions);
         permissions.forEach(permission -> {
             List<Resource> resources = permission.getResources();
             resources.forEach(resource -> {

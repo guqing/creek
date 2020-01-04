@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 public class UserDTO implements OutputConverter<UserDTO,User> {
 	private Integer id;
-	private String name;
+	private String nickname;
 	private String username;
 	private String description;
 	private Date birthday;

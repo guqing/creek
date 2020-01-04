@@ -28,6 +28,4 @@ public class RoleDTO implements OutputConverter<RoleDTO, Role> {
 	private Date modifyTime;
 
 	private List<PermissionDTO> permissions;
-
-	private List<Long> permissionIds;
 }

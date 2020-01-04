@@ -60,7 +60,6 @@ public class OauthController {
     @PostMapping("/login")
     @ApiOperation(value="使用系统账号登录", notes="支持用户名、邮箱地址、手机号码登录")
     public Result login(@RequestBody @Valid LoginParam loginParam, HttpServletRequest request) {
-        log.info("登录用户参数：{}", loginParam);
         MyUserDetails userDetails = userDetailsService.loadUserByUsername(loginParam.getUsername(), loginParam.getLoginType());
 
         if(Objects.isNull(userDetails)) {
