@@ -1,9 +1,6 @@
 package xyz.guqing.app.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.*;
@@ -24,7 +21,7 @@ public class Role {
 
     private String name;
 
-    private Integer available;
+    private Integer status;
 
     private Date createTime;
 

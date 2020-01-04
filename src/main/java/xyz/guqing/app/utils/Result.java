@@ -3,9 +3,12 @@ package xyz.guqing.app.utils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.domain.Page;
+import xyz.guqing.app.model.dto.RoleDTO;
+import xyz.guqing.app.model.entity.Role;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author guqing
@@ -26,13 +29,13 @@ public class Result<T> {
         return new Result<T>(0, "成功", data);
     }
 
-    public static<T> Result<PageInfo<T>> okList(Page<T> page) {
-        PageInfo<T> pageInfo = PageInfo.convertTo(page);
+    public static<T, DTO> Result<PageInfo<DTO>> okList(Page<T> page, Function<T, DTO> function) {
+        PageInfo<DTO> pageInfo = PageInfo.convertFrom(page, function);
         return ok(pageInfo);
     }
 
-    public static<T> Result okList(List<T> list) {
-        return ok(PageInfo.convertTo(list));
+    public static<T, DTO> Result okList(List<T> list, Function<T, DTO> function) {
+        return ok(PageInfo.convertFrom(list, function));
     }
 
     public static Result<String> fail() {

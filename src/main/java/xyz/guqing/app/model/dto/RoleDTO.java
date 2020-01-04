@@ -21,7 +21,7 @@ public class RoleDTO implements OutputConverter<RoleDTO, Role> {
 
 	private String name;
 
-	private String available;
+	private Integer status;
 
 	private Date createTime;
 

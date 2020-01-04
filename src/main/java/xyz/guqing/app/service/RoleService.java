@@ -1,9 +1,14 @@
 package xyz.guqing.app.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import xyz.guqing.app.model.dto.RoleDTO;
 import xyz.guqing.app.model.entity.Role;
 import xyz.guqing.app.repository.RoleRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -21,5 +26,9 @@ public class RoleService {
     public Role findById(Integer id) {
         Optional<Role> roleOptional = roleRepository.findById(id);
         return roleOptional.orElseGet(Role::new);
+    }
+
+    public Page<Role> findAllByPage(Integer current, Integer pageSize) {
+        return roleRepository.findAll(PageRequest.of(current - 1, pageSize));
     }
 }
