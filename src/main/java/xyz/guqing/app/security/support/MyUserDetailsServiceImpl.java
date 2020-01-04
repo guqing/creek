@@ -4,14 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import xyz.guqing.app.model.entity.Permission;
 import xyz.guqing.app.model.entity.Resource;
 import xyz.guqing.app.model.entity.Role;
 import xyz.guqing.app.model.entity.User;
 import xyz.guqing.app.model.support.LoginTypeConstant;
 import xyz.guqing.app.service.PermissionService;
+import xyz.guqing.app.service.ResourceService;
 import xyz.guqing.app.service.RoleService;
 import xyz.guqing.app.service.UserService;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -23,16 +26,10 @@ import java.util.Set;
 @Service
 public class MyUserDetailsServiceImpl implements UserDetailsService {
     private UserService userService;
-    private RoleService roleService;
-    private PermissionService permissionService;
 
     @Autowired
-    public MyUserDetailsServiceImpl(UserService userService,
-                                    RoleService roleService,
-                                    PermissionService permissionService) {
+    public MyUserDetailsServiceImpl(UserService userService) {
         this.userService = userService;
-        this.roleService = roleService;
-        this.permissionService = permissionService;
     }
 
     @Override
@@ -55,12 +52,14 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
         userDetails.setId(user.getId());
         userDetails.setUsername(user.getUsername());
         userDetails.setPassword(user.getPassword());
-
+        System.out.println("user role" + user.getRole());
         Role role = user.getRole();
 
         // 设置权限url
-        Set<Resource> actions = role.getResources();
-        userDetails.setPermissionUrl(this.getPermissionUrl(actions));
+        System.out.println("user resources" + role.getPermissions());
+        List<Permission> permissions = role.getPermissions();
+
+        userDetails.setPermissionUrl(this.getActionUrl(permissions));
 
 
         userDetails.setRole(role);
@@ -68,13 +67,17 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
     }
     /**
      * 根据权限列表获取权限对应的url集合
-     * @param actions 权限action集合
+     * @param permissions 权限菜单
      * @return 返回权限url
      */
-    private Set<String> getPermissionUrl(Set<Resource> actions) {
+    private Set<String> getActionUrl(List<Permission> permissions) {
         Set<String> actionUrl = new HashSet<>();
-        actions.forEach(action -> {
-            actionUrl.add(action.getUrl());
+        System.out.println("user permissions" + permissions);
+        permissions.forEach(permission -> {
+            List<Resource> resources = permission.getResources();
+            resources.forEach(resource -> {
+                actionUrl.add(resource.getUrl());
+            });
         });
 
         return actionUrl;

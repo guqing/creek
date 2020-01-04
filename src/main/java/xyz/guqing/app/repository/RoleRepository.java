@@ -1,7 +1,10 @@
 package xyz.guqing.app.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import xyz.guqing.app.model.entity.Resource;
 import xyz.guqing.app.model.entity.Role;
+
+import java.util.List;
 
 /**
  * @author guqing

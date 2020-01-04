@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @Component
-@ConfigurationProperties("app")
+@ConfigurationProperties("secure")
 public class SecurityProperties {
     private final TokenProperties tokenProperties;
     private final LoginProperties loginProperties;

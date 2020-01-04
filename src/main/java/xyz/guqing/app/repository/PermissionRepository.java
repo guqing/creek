@@ -11,11 +11,4 @@ import java.util.Set;
  * @date 2019-12-22 13:01
  */
 public interface PermissionRepository extends JpaRepository<Permission, Integer> {
-    /**
-     * 根据角色id查询权限
-     * @param roleId 角色id
-     * @return 返回资源列表
-     */
-    @NonNull
-    Set<Permission> findByRoleId(@NonNull Integer roleId);
 }

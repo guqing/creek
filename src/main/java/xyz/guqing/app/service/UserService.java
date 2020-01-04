@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +51,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PermissionService permissionService;
     private final UserConnectRepository userConnectRepository;
+
     @Autowired
     public UserService(JwtTokenUtil jwtTokenUtil,
                        UserRepository userRepository,
@@ -62,9 +66,9 @@ public class UserService {
     @Cacheable(key = "#username", unless = "#result==null")
     public User getUserByUsername(String username, Integer loginType){
         if(loginType == LoginTypeConstant.EMAIL) {
-            return userRepository.findByUsername(username, UserStatusConstant.NORMAL, UserStatusConstant.NORMAL);
-        } else if(loginType == LoginTypeConstant.USERNAME){
             return userRepository.findByEmail(username, UserStatusConstant.NORMAL, UserStatusConstant.NORMAL);
+        } else if(loginType == LoginTypeConstant.USERNAME){
+            return userRepository.findByUsername(username, UserStatusConstant.NORMAL, UserStatusConstant.NORMAL);
         }
 
         return null;
@@ -81,7 +85,8 @@ public class UserService {
         Assert.isTrue(userOptional.isPresent(), "用户不存在");
         User user = userOptional.get();
         Role role = user.getRole();
-        Set<Permission> permissions = permissionService.findByRoleId(role.getId());
+        List<Permission> permissions = role.getPermissions();
+//        Set<Permission> permissions = permissionService.findByRoleId(role.getId());
         return userDtoConverter(user, role, permissions);
     }
 
@@ -100,7 +105,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    private UserDTO userDtoConverter(User user, Role role, Set<Permission> permissions) {
+    private UserDTO userDtoConverter(User user, Role role, List<Permission> permissions) {
         UserDTO userDTO = new UserDTO().convertFrom(user);
         //设置角色和权限
         RoleDTO roleDTO = new RoleDTO().convertFrom(role);
@@ -167,5 +172,9 @@ public class UserService {
             UserConnect newUserConnectRecord = userConnectRepository.save(userConnect);
             return jwtTokenUtil.generateToken(newUserConnectRecord.getUser());
         }
+    }
+
+    public Page<User> findAllByPage(Integer current, Integer pageSize) {
+        return userRepository.findAll(PageRequest.of(current, pageSize));
     }
 }

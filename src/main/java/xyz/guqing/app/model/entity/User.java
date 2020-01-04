@@ -10,7 +10,6 @@ import java.util.List;
 @Data
 @Entity
 @Table
-@EqualsAndHashCode
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,9 +51,9 @@ public class User {
 
     private Integer deleted;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne
     private Role role;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
+    @OneToMany(mappedBy="user")
     private List<UserConnect> userConnects;
 }

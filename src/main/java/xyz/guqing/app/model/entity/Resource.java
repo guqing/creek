@@ -4,8 +4,6 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author guqing
@@ -23,17 +21,11 @@ public class Resource {
 
     private String description;
 
-    private Boolean defaultcheck;
+    private Boolean defaultCheck;
 
     private String url;
 
     private Date createTime;
 
     private Date modifyTime;
-
-    @ManyToOne
-    private Permission permission;
-
-    @ManyToOne
-    private Role role;
 }

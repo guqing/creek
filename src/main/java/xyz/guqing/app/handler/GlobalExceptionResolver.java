@@ -16,7 +16,6 @@ import xyz.guqing.app.utils.Result;
 @Slf4j
 public class GlobalExceptionResolver {
     @ExceptionHandler(Exception.class)
-
     public Result handleException(Exception e) {
         log.debug("发生未知异常，错误信息：{}， 详细信息：{}", e.getMessage(), e);
         return Result.serious();

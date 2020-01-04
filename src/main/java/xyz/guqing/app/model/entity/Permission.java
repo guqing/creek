@@ -1,9 +1,10 @@
 package xyz.guqing.app.model.entity;
 
 import lombok.Data;
-
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author guqing
@@ -32,10 +33,6 @@ public class Permission {
     private Date modifyTime;
 
     /**所属资源*/
-    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.REFRESH})
-    private Resource resource;
-
-    /**所属角色*/
-    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.REFRESH})
-    private Role role;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Resource> resources;
 }

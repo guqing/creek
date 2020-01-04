@@ -1,4 +1,3 @@
-
 spring:
   datasource:
     druid:
@@ -27,7 +26,7 @@ justauth:
     github:
       client-id: 2917d3df2590484f0b7f
       client-secret: d47162aee0647f05d822e2507f6ccc5d98e95ded
-      redirect-uri: http://m9wyym.natappfree.cc/auth/github/callback
+      redirect-uri: http://igry2v.natappfree.cc/auth/github/callback
     weibo:
       client-id: 227955467
       client-secret: a64d03e26a6a8f769e5ebc7a697f8c18
@@ -39,3 +38,5 @@ swagger:
   base-path: /**
   base-package: xyz.guqing.app.controller
   enabled: false
+server:
+  port: 8081

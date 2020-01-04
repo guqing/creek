@@ -60,6 +60,7 @@ public class OauthController {
     @PostMapping("/login")
     @ApiOperation(value="使用系统账号登录", notes="支持用户名、邮箱地址、手机号码登录")
     public Result login(@RequestBody @Valid LoginParam loginParam, HttpServletRequest request) {
+        log.info("登录用户参数：{}", loginParam);
         MyUserDetails userDetails = userDetailsService.loadUserByUsername(loginParam.getUsername(), loginParam.getLoginType());
 
         if(Objects.isNull(userDetails)) {
@@ -78,7 +79,8 @@ public class OauthController {
     public void renderAuth(@PathVariable String type, HttpServletResponse response) throws IOException {
         AuthRequest authRequest = getAuthRequest(type);
         // 生成授权地址
-        response.sendRedirect(authRequest.authorize(AuthStateUtils.createState()));
+        String authorizeUrl = authRequest.authorize(AuthStateUtils.createState());
+        response.sendRedirect(authorizeUrl);
     }
 
     @RequestMapping("/{type}/callback")
@@ -95,6 +97,11 @@ public class OauthController {
         log.info("【response】= {}", JSONUtil.toJsonStr(response));
         String token = userService.oauthLogin(response, ipAddr);
         return Result.ok(token);
+    }
+
+    @GetMapping("/test")
+    public String hello() {
+        return "测试跨域";
     }
 
     private AuthRequest getAuthRequest(String type) {

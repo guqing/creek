@@ -1,11 +1,12 @@
 package xyz.guqing.app.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author guqing
@@ -23,18 +24,12 @@ public class Role {
 
     private String name;
 
-    private String available;
+    private Integer available;
 
     private Date createTime;
 
     private Date modifyTime;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="role")
-    private Set<User> users;
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy="role")
-    private Set<Resource> resources = new HashSet<>();
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "role")
-    private Set<Permission> permissions;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Permission> permissions;
 }

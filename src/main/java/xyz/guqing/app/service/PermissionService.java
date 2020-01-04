@@ -21,7 +21,4 @@ public class PermissionService {
         this.permissionRepository = permissionRepository;
     }
 
-    public Set<Permission> findByRoleId(Integer roleId) {
-        return permissionRepository.findByRoleId(roleId);
-    }
 }
