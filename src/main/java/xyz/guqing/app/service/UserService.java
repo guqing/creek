@@ -176,4 +176,8 @@ public class UserService {
     public Page<User> findAllByPage(Integer current, Integer pageSize) {
         return userRepository.findAll(PageRequest.of(current, pageSize));
     }
+
+    public Long count() {
+        return userRepository.count();
+    }
 }

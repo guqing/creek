@@ -33,10 +33,4 @@ public class RoleController {
         Page<Role> roles = roleService.findAllByPage(current, pageSize);
         return Result.okList(roles, role -> new RoleDTO().convertFrom(role));
     }
-
-    @GetMapping("/count")
-    public Result count() {
-        Long roleCount = roleService.count();
-        return Result.ok(roleCount);
-    }
 }
