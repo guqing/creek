@@ -12,8 +12,6 @@ import xyz.guqing.app.service.RoleService;
 import xyz.guqing.app.utils.PageInfo;
 import xyz.guqing.app.utils.Result;
 
-import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author guqing
@@ -30,9 +28,15 @@ public class RoleController {
     }
 
     @GetMapping("/list")
-    public Result<PageInfo<RoleDTO>> list(@RequestParam(defaultValue = "0") Integer current,
+    public Result<PageInfo<RoleDTO>> list(@RequestParam(defaultValue = "1") Integer current,
                                           @RequestParam(defaultValue = "10") Integer pageSize) {
         Page<Role> roles = roleService.findAllByPage(current, pageSize);
         return Result.okList(roles, role -> new RoleDTO().convertFrom(role));
+    }
+
+    @GetMapping("/count")
+    public Result count() {
+        Long roleCount = roleService.count();
+        return Result.ok(roleCount);
     }
 }

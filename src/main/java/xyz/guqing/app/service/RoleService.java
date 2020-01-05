@@ -31,4 +31,8 @@ public class RoleService {
     public Page<Role> findAllByPage(Integer current, Integer pageSize) {
         return roleRepository.findAll(PageRequest.of(current - 1, pageSize));
     }
+
+    public Long count() {
+        return roleRepository.count();
+    }
 }
