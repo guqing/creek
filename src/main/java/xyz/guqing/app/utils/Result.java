@@ -34,7 +34,7 @@ public class Result<T> {
         return ok(pageInfo);
     }
 
-    public static<T, DTO> Result okList(List<T> list, Function<T, DTO> function) {
+    public static<T, DTO> Result<PageInfo<DTO>> okList(List<T> list, Function<T, DTO> function) {
         return ok(PageInfo.convertFrom(list, function));
     }
 
