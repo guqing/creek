@@ -20,6 +20,9 @@ CREATE DATABASE `xxx`;
 - 跨域配置
 - caffeine缓存
 - 统一项目风格
+- 日志
 - 支持第三方社交登录
 
 其他特性正在开发中...
+
+[前端使用示例项目](https://github.com/guqing/creek)
