@@ -180,4 +180,8 @@ public class UserService {
     public Long count() {
         return userRepository.count();
     }
+
+    public Optional<User> findById(Integer id) {
+        return userRepository.findById(id);
+    }
 }

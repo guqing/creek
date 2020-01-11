@@ -14,13 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.guqing.app.model.annotation.WriteLog;
 import xyz.guqing.app.model.entity.Log;
+import xyz.guqing.app.model.entity.User;
 import xyz.guqing.app.model.enums.LogType;
 import xyz.guqing.app.security.support.MyUserDetails;
 import xyz.guqing.app.security.utils.SecurityUserHelper;
 import xyz.guqing.app.service.LogService;
+import xyz.guqing.app.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * 日志切面
@@ -34,11 +37,16 @@ public class LogAspect {
 	private static final Logger logger = LoggerFactory.getLogger(LogAspect.class);
 
 	private HttpServletRequest request;
-	private LogService logService;
+	private final LogService logService;
+	private final UserService userService;
+
 	@Autowired
-	public LogAspect(HttpServletRequest request, LogService logService) {
+	public LogAspect(HttpServletRequest request,
+					 LogService logService,
+					 UserService userService) {
 		this.request = request;
 		this.logService = logService;
+		this.userService = userService;
 	}
 
 	@Pointcut("execution(* xyz.guqing.app.controller.*.*(..))")
@@ -90,10 +98,9 @@ public class LogAspect {
 
 		//获取request对象
 		String ip = request.getRemoteAddr();
-
+		Optional<User> userOptional = userService.findById(user.getId());
 		Log log = new Log();
-		log.setUserId(user.getId());
-		log.setUsername(user.getUsername());
+		userOptional.ifPresent(log::setUser);
 		log.setMethodName(method.getName());
 		log.setName(type.getName());
 		log.setContent(annotation.value());

@@ -17,10 +17,6 @@ public class Log {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer userId;
-
-    private String username;
-
     private String name;
 
     private String content;
@@ -34,4 +30,7 @@ public class Log {
     private Date createTime;
 
     private Date modifyTime;
+
+    @ManyToOne
+    private User user;
 }
