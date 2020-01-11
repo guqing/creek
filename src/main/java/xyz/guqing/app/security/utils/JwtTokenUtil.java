@@ -112,19 +112,20 @@ public class JwtTokenUtil implements Serializable {
     }
 
     public String generateToken(MyUserDetails userDetails) {
-        Map<String, Object> claims = getClaimsMap(userDetails.getUsername());
+        Map<String, Object> claims = getClaimsMap(userDetails.getUsername(), userDetails.getId());
         return generateToken(claims);
     }
 
-    private Map<String, Object> getClaimsMap(String username) {
-        Map<String, Object> claims = new HashMap<>(16);
+    private Map<String, Object> getClaimsMap(String username, Integer userId) {
+        Map<String, Object> claims = new HashMap<>(4);
+        claims.put(CLAIM_KEY_USER_ID, userId);
         claims.put(CLAIM_KEY_USERNAME, username);
         claims.put(CLAIM_KEY_CREATED, new Date());
         return claims;
     }
 
     public String generateToken(User user) {
-        Map<String, Object> claims = getClaimsMap(user.getUsername());
+        Map<String, Object> claims = getClaimsMap(user.getUsername(), user.getId());
         return generateToken(claims);
     }
 
