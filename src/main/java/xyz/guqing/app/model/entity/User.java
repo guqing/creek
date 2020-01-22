@@ -2,6 +2,8 @@ package xyz.guqing.app.model.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -54,6 +56,6 @@ public class User {
     @ManyToOne
     private Role role;
 
-    @OneToMany(mappedBy="user")
-    private List<UserConnect> userConnects;
+//    @OneToMany(mappedBy="user")
+//    private List<UserConnect> userConnects;
 }

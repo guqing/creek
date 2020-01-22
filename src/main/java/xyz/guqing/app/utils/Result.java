@@ -54,6 +54,10 @@ public class Result<T> {
         return fail(401, "参数不对");
     }
 
+    public static Result badArgument(String message) {
+        return fail(401, message);
+    }
+
     public static Result badArgument(Map<String, String> validMap) {
         return fail(401, "参数不对", validMap);
     }

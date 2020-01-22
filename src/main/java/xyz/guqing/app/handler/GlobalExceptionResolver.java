@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.exception.AuthException;
 import org.springframework.web.bind.annotation.*;
 import xyz.guqing.app.exception.AuthFailException;
+import xyz.guqing.app.exception.BadRequestException;
 import xyz.guqing.app.exception.ServiceException;
 import xyz.guqing.app.exception.UnsupportedOauthTypeException;
 import xyz.guqing.app.utils.Result;
@@ -37,5 +38,11 @@ public class GlobalExceptionResolver {
     public Result handleOpdRuntimeException(ServiceException e) {
         log.debug("业务层异常，错误信息：{}", e.getMessage());
         return Result.businessError(e.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public Result handleBadRequestException(BadRequestException e) {
+        log.debug("BadRequestException异常，错误信息：{}", e.getMessage());
+        return Result.badArgument(e.getMessage());
     }
 }

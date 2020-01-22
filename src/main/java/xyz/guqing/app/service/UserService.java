@@ -4,6 +4,7 @@ import me.zhyd.oauth.enums.AuthUserGender;
 import me.zhyd.oauth.model.AuthResponse;
 import me.zhyd.oauth.model.AuthToken;
 import me.zhyd.oauth.model.AuthUser;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import xyz.guqing.app.exception.AuthFailException;
+import xyz.guqing.app.exception.BadRequestException;
 import xyz.guqing.app.exception.ServiceException;
 import xyz.guqing.app.model.dto.PermissionDTO;
 import xyz.guqing.app.model.dto.RoleDTO;
@@ -183,5 +185,52 @@ public class UserService {
 
     public Optional<User> findById(Integer id) {
         return userRepository.findById(id);
+    }
+
+    public void updatePassword(Integer userId, String oldPassword, String newPassword) {
+        Optional<User> userOptional = findById(userId);
+        userOptional.ifPresent(user -> {
+            updatePassword(user, oldPassword, newPassword);
+        });
+    }
+
+    /**
+     * 更新密码，如果用户数据库中的密码为空，则直接更新用户密码
+     * @param user 数据库中的用户
+     * @param oldPassword 旧的用户密码
+     * @param newPassword 用户的新密码
+     */
+    private void updatePassword(User user, String oldPassword, String newPassword) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if(StringUtils.isBlank(user.getPassword())) {
+            String encodedNewPassword = encoder.encode(newPassword);
+            user.setPassword(encodedNewPassword);
+            userRepository.save(user);
+            return;
+        }
+
+        if(StringUtils.isBlank(oldPassword)) {
+            throw new BadRequestException("原始密码不正确");
+        }
+        String encodedOldPassword = encoder.encode(oldPassword);
+
+        boolean matches = encoder.matches(user.getPassword(), encodedOldPassword);
+        if (!matches) {
+            throw new BadRequestException("原始密码不正确");
+        }
+        String encodedNewPassword = encoder.encode(newPassword);
+        // 密码匹配，更新密码
+        user.setPassword(encodedNewPassword);
+        userRepository.save(user);
+    }
+
+    public boolean hasPassword(Integer userId) {
+        Optional<User> userOptional = findById(userId);
+        if(userOptional.isPresent()) {
+            User user = userOptional.get();
+            return StringUtils.isNotBlank(user.getPassword());
+        }
+
+        return true;
     }
 }
