@@ -16,8 +16,10 @@ class SpringbootJpaStarterApplicationTests {
 private RoleRepository roleRepository;
     @Test
     void contextLoads() {
-        Page<Role> allByPage = roleRepository.findAll(PageRequest.of(0, 10));
-        System.out.println(allByPage.getContent());
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encode = encoder.encode("123456");
+        boolean matches = encoder.matches( "123456", "$2a$10$xNOU4iD86Fa4tyrwrM1z1ug/WokuFHyQzgPKiTkctOMukuDBdCHZq");
+        System.out.println(matches);
     }
 
 }

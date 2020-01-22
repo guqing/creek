@@ -212,9 +212,7 @@ public class UserService {
         if(StringUtils.isBlank(oldPassword)) {
             throw new BadRequestException("原始密码不正确");
         }
-        String encodedOldPassword = encoder.encode(oldPassword);
-
-        boolean matches = encoder.matches(user.getPassword(), encodedOldPassword);
+        boolean matches = encoder.matches(oldPassword, user.getPassword());
         if (!matches) {
             throw new BadRequestException("原始密码不正确");
         }

@@ -53,7 +53,7 @@ public class UserController {
 
     @GetMapping("/info")
     @ApiOperation(value = "获取用户信息", notes = "需要先登录获取Token才可以访问")
-    public Result<UserDTO> getUserInfo(HttpServletRequest request) {
+    public Result<UserDTO> getUserInfo() {
         MyUserDetails user = (MyUserDetails) SecurityUserHelper.getCurrentPrincipal();
         Integer userId = user.getId();
         UserDTO userInfo = userService.getUserInfo(userId);
