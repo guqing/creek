@@ -1,6 +1,9 @@
 package xyz.guqing.app.model.params;
 
 import lombok.Data;
+import xyz.guqing.app.model.entity.User;
+import xyz.guqing.app.model.support.InputConverter;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -13,7 +16,7 @@ import java.util.Date;
  * @date 2019-12-23 22:41
  */
 @Data
-public class UserParam {
+public class UserParam implements InputConverter<User> {
     private Integer id;
 
     @NotBlank(message="昵称不能为空")
