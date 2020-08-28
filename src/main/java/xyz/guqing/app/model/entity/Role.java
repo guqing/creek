@@ -1,32 +1,37 @@
 package xyz.guqing.app.model.entity;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-
-import javax.persistence.*;
-import java.util.*;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
+ * <p>
+ * 角色表
+ * </p>
+ *
  * @author guqing
- * @date 2019-12-22 12:41
+ * @since 2020-08-19
  */
 @Data
-@Entity
-@Table
-public class Role {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("role")
+public class Role extends BaseEntity {
 
-    private String description;
+    private static final long serialVersionUID = 1L;
 
-    private String name;
+    /**
+     * 角色名称
+     */
+    private String roleName;
 
-    private Integer status;
+    /**
+     * 角色描述
+     */
+    private String remark;
 
-    private Date createTime;
-
-    private Date modifyTime;
-
-    @OneToMany(fetch = FetchType.EAGER)
-    private List<Permission> permissions;
+    @TableLogic
+    private Integer deleted;
 }

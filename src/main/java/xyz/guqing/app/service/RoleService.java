@@ -1,38 +1,50 @@
 package xyz.guqing.app.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import xyz.guqing.app.model.dto.RoleDTO;
 import xyz.guqing.app.model.entity.Role;
-import xyz.guqing.app.repository.RoleRepository;
+import xyz.guqing.app.model.params.RoleQuery;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author guqing
- * @date 2019-12-21 19:57
+ * @date 2020-06-03
  */
-@Service
-public class RoleService {
-    private RoleRepository roleRepository;
+public interface RoleService extends IService<Role> {
+    /**
+     * 保存用户和角色关系
+     * @param userId 用户id
+     * @param roleIds 角色id集合
+     */
+    void saveUserRoles(Long userId, List<Long> roleIds);
 
-    public RoleService(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
+    /**
+     * 根据条件查询角色信息
+     * @param roleQuery 查询条件
+     * @return 返回分页角色列表
+     */
+    Page<Role> listBy(RoleQuery roleQuery);
 
-    public Role findById(Integer id) {
-        Optional<Role> roleOptional = roleRepository.findById(id);
-        return roleOptional.orElseGet(Role::new);
-    }
+    /**
+     * 创建或更新角色和角色关联的菜单信息
+     * @param role 角色信息
+     * @param menuIds 角色关联的菜单集合
+     */
+    void createOrUpdate(Role role, Set<Long> menuIds);
 
-    public Page<Role> findAllByPage(Integer current, Integer pageSize) {
-        return roleRepository.findAll(PageRequest.of(current - 1, pageSize));
-    }
+    /**
+     * 根据角色id查询角色详情
+     * @param roleId 角色id
+     * @return 查询到返回角色详情否则返回{@code null}
+     */
+    RoleDTO getRoleById(Long roleId);
 
-    public Long count() {
-        return roleRepository.count();
-    }
+    /**
+     * 删除角色
+     * @param roleIds 角色id集合
+     */
+    void deleteRoles(List<Long> roleIds);
 }

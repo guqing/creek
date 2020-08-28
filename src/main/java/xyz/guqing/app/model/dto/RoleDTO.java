@@ -4,28 +4,18 @@ import lombok.Data;
 import xyz.guqing.app.model.entity.Role;
 import xyz.guqing.app.model.support.OutputConverter;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
- * 角色DTO
- *
  * @author guqing
- * @date 2019-08-11 11:21
+ * @date 2020-06-04
  */
 @Data
 public class RoleDTO implements OutputConverter<RoleDTO, Role> {
-	private Integer id;
-
-	private String description;
-
-	private String name;
-
-	private Integer status;
-
-	private Date createTime;
-
-	private Date modifyTime;
-
-	private List<PermissionDTO> permissions;
+    private Long id;
+    private String roleName;
+    private String remark;
+    private LocalDateTime createTime;
+    private Set<Long> menuIds;
 }

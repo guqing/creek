@@ -1,25 +1,9 @@
 spring:
   datasource:
-    druid:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      username: root
-      password: 123456
-      url: jdbc:mysql://localhost:3306/springboot-jpa-starter?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-      initial-size: 10
-      min-idle: 15
-      maxActive: 20
-      maxWait: 60000
-      timeBetweenEvictionRunsMillis: 60000
-      minEvictableIdleTimeMillis: 300000
-      testWhileIdle: true
-      testOnBorrow: false
-      testOnReturn: false
-      poolPreparedStatements: true
-      maxPoolPreparedStatementPerConnectionSize: 20
-  jpa:
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/springboot_jpa_starter?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
 justauth:
   enabled: true
   type:
@@ -34,9 +18,5 @@ justauth:
 logging:
   level:
     xyz.guqing.app: debug
-swagger:
-  base-path: /**
-  base-package: xyz.guqing.app.controller
-  enabled: false
 server:
   port: 8081

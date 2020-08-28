@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.guqing.app.mapper.RoleMapper">
+    <!-- 自定义结果映射 -->
+    <resultMap id="roleWithMenuResultMap" type="xyz.guqing.app.model.dos.RoleDO">
+        <id property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="remark" column="remark"/>
+        <result property="deleted" column="deleted"/>
+        <result property="createTime" column="create_time"/>
+        <result property="modifyTime" column="modify_time"/>
+        <!-- 多表关联映射 -->
+        <collection property="menuIds" javaType="java.util.Set" ofType="java.lang.Long">
+            <result column="menu_id" property="menuId"/>
+        </collection>
+    </resultMap>
+
+    <select id="findById" parameterType="java.lang.Long"
+            resultMap="roleWithMenuResultMap">
+        select
+            r.id,
+            r.role_name,
+            r.remark,
+            r.deleted,
+            r.create_time,
+            r.modify_time,
+            rm.menu_id menu_id
+        from role r
+          left join role_menu rm on r.id = rm.role_id
+        where r.id = #{id}
+    </select>
+</mapper>

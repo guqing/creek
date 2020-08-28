@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
-import xyz.guqing.app.utils.Result;
+import xyz.guqing.app.model.support.ResultEntity;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +23,6 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
         httpServletResponse.setContentType("application/json;charset=UTF-8");
         // 登陆失败
-        httpServletResponse.getWriter().write(JSON.toJSONString(Result.fail(401,"认证失败")));
+        httpServletResponse.getWriter().write(JSON.toJSONString(ResultEntity.authorizedFailed("认证失败")));
     }
 }

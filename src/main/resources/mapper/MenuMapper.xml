@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.guqing.app.mapper.MenuMapper">
+    <select id="findUserPermissions" resultType="xyz.guqing.app.model.entity.Menu">
+        select distinct m.perms
+        from role r
+        left join user_role ur on (r.id = ur.role_id)
+        left join user u on (u.id = ur.user_id)
+        left join role_menu rm on (rm.role_id = r.id)
+        left join menu m on (m.id = rm.menu_id)
+        where u.username = #{username}
+        and m.perms is not null
+        and m.perms &lt;&gt; ''
+    </select>
+
+    <select id="findUserMenus" resultType="xyz.guqing.app.model.entity.Menu">
+        select m.*
+        from menu m
+        where m.type &lt;&gt; 1
+        and m.id in
+        (select distinct rm.menu_id
+        from role_menu rm
+        left join role r on (rm.role_id = r.id)
+        left join user_role ur on (ur.role_id = r.id)
+        left join user u on (u.id = ur.user_id)
+        where u.username = #{username})
+        order by m.sort_index asc, m.create_time asc
+    </select>
+</mapper>

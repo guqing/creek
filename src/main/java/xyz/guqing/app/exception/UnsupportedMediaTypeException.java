@@ -1,12 +1,13 @@
 package xyz.guqing.app.exception;
 
 /**
- * 不支持的媒体类型异常
+ * Unsupported media type exception.
  *
  * @author guqing
- * @date 2019-12-22 14:56
+ * @date 2020-04-04 16:03
  */
 public class UnsupportedMediaTypeException extends BadRequestException {
+    private static final long serialVersionUID = 503164471927700820L;
 
     public UnsupportedMediaTypeException(String message) {
         super(message);

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.guqing.app.mapper.UserMapper">
+    <select id="findByUsername" parameterType="string" resultType="xyz.guqing.app.model.bo.CurrentUser">
+        SELECT u.id,
+               u.username,
+               u.nickname,
+               u.email,
+               u.mobile,
+               u.password,
+               u.status,
+               u.create_time             createTime,
+               u.gender,
+               u.group_id,
+               u.last_login_time         lastLoginTime,
+               u.modify_time             modifyTime,
+               u.description,
+               u.avatar,
+               d.group_name,
+               GROUP_CONCAT(r.id)        roleId,
+               GROUP_CONCAT(r.ROLE_NAME) roleName
+        FROM `user` u
+                 LEFT JOIN user_group d ON (u.group_id = d.id)
+                 LEFT JOIN user_role ur ON (u.id = ur.user_id)
+                 LEFT JOIN role r ON r.id = ur.role_id
+        WHERE u.username = #{username}
+        group by u.username, u.id, u.email, u.mobile, u.password, u.status, u.create_time, u.gender, u.group_id
+               , u.last_login_time, u.modify_time, u.description, u.avatar
+    </select>
+</mapper>

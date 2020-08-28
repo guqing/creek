@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import xyz.guqing.app.security.filter.JwtTokenFilter;
 import xyz.guqing.app.security.handler.MyAccessDeniedHandler;
@@ -21,6 +22,9 @@ import xyz.guqing.app.security.properties.LoginProperties;
 import xyz.guqing.app.security.properties.SecurityProperties;
 import xyz.guqing.app.security.support.MyUserDetailsServiceImpl;
 
+/**
+ * @author guqing
+ */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled=true)
@@ -29,22 +33,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private MyAuthenticationEntryPoint authenticationEntryPoint;
     private MyAccessDeniedHandler accessDeniedHandler;
     private MyLogoutSuccessHandler logoutSuccessHandler;
-    private MyUserDetailsServiceImpl userService;
+    private MyUserDetailsServiceImpl userDetailsService;
     private final LoginProperties loginProperties;
+
+    private AuthenticationManager authenticationManager;
+
+    public AuthenticationManager getAuthenticationManager() {
+        return authenticationManager;
+    }
 
     @Autowired
     public WebSecurityConfig(SecurityProperties securityProperties,
                              MyAuthenticationEntryPoint authenticationEntryPoint,
                              MyAccessDeniedHandler accessDeniedHandler,
                              MyLogoutSuccessHandler logoutSuccessHandler,
-                             MyUserDetailsServiceImpl userService) {
+                             MyUserDetailsServiceImpl userDetailsService) {
         this.loginProperties = securityProperties.getLoginProperties();
         // 未登陆时返回 JSON 格式的数据给前端（否则为 html）
         this.authenticationEntryPoint = authenticationEntryPoint;
 
         this.accessDeniedHandler = accessDeniedHandler;
         this.logoutSuccessHandler = logoutSuccessHandler;
-        this.userService = userService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
@@ -59,7 +69,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure( AuthenticationManagerBuilder auth ) throws Exception {
-        auth.userDetailsService( userService );
+        this.authenticationManager = authenticationManagerBean();
+        auth.userDetailsService( userDetailsService );
     }
 
     @Override
@@ -86,18 +97,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 ).permitAll()
 
                 // 对登录登出注册要允许匿名访问
-                .antMatchers("/auth/**", "/swagger**","/swagger/**","/v2/**", loginProperties.getLogoutUrl())
+                .antMatchers("/auth/**", loginProperties.getLogoutUrl())
                 .permitAll()
 
-                .anyRequest()
+                //.anyRequest()
                 // RBAC 动态 url 认证
-                .access("@rbacauthorityservice.hasPermission(request,authentication)")
+                //.access("@rbacauthorityservice.hasPermission(request,authentication)")
 
                 .and()
                 .logout().logoutUrl(loginProperties.getLogoutUrl())
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .permitAll();
-
 
 
         // 无权访问
@@ -107,4 +117,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.headers().cacheControl();
     }
 
+    @Override
+    public UserDetailsService userDetailsServiceBean() throws Exception {
+        return super.userDetailsServiceBean();
+    }
 }

@@ -2,8 +2,6 @@ package xyz.guqing.app.model.support;
 
 import org.springframework.lang.NonNull;
 
-import static xyz.guqing.app.utils.BeanUtils.updateProperties;
-
 /**
  * Converter interface for output DTO.
  *
@@ -25,7 +23,7 @@ public interface OutputConverter<DTO extends OutputConverter<DTO, DOMAIN>, DOMAI
     @NonNull
     default <T extends DTO> T convertFrom(@NonNull DOMAIN domain) {
 
-        updateProperties(domain, this);
+        BeanUtils.updateProperties(domain, this);
 
         return (T) this;
     }

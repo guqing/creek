@@ -1,238 +1,97 @@
 package xyz.guqing.app.service;
 
-import me.zhyd.oauth.enums.AuthUserGender;
-import me.zhyd.oauth.model.AuthResponse;
-import me.zhyd.oauth.model.AuthToken;
-import me.zhyd.oauth.model.AuthUser;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import xyz.guqing.app.exception.AuthFailException;
-import xyz.guqing.app.exception.BadRequestException;
-import xyz.guqing.app.exception.ServiceException;
-import xyz.guqing.app.model.dto.PermissionDTO;
-import xyz.guqing.app.model.dto.RoleDTO;
-import xyz.guqing.app.model.dto.UserDTO;
-import xyz.guqing.app.model.entity.Permission;
-import xyz.guqing.app.model.entity.Role;
+import com.baomidou.mybatisplus.extension.service.IService;
+import xyz.guqing.app.model.bo.CurrentUser;
 import xyz.guqing.app.model.entity.User;
-import xyz.guqing.app.model.entity.UserConnect;
-import xyz.guqing.app.model.params.LoginParam;
-import xyz.guqing.app.model.params.OauthUserParam;
-import xyz.guqing.app.model.support.LoginTypeConstant;
-import xyz.guqing.app.model.support.UserConnectConverter;
-import xyz.guqing.app.model.support.UserStatusConstant;
-import xyz.guqing.app.repository.UserConnectRepository;
-import xyz.guqing.app.repository.UserRepository;
-import xyz.guqing.app.security.support.MyUserDetails;
-import xyz.guqing.app.security.utils.IpUtil;
-import xyz.guqing.app.security.utils.JwtTokenUtil;
-import xyz.guqing.app.utils.Result;
+import xyz.guqing.app.model.enums.UserStatusEnum;
 
-import java.util.*;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
 
 /**
+ * <p>
+ * 菜单表 服务类
+ * </p>
+ *
  * @author guqing
- * @date 2019/8/9
+ * @since 2020-05-21
  */
-@Service
-@CacheConfig(cacheNames = "userService")
-public class UserService {
-    private final JwtTokenUtil jwtTokenUtil;
-    private final UserRepository userRepository;
-    private final PermissionService permissionService;
-    private final UserConnectRepository userConnectRepository;
-
-    @Autowired
-    public UserService(JwtTokenUtil jwtTokenUtil,
-                       UserRepository userRepository,
-                       PermissionService permissionService,
-                       UserConnectRepository userConnectRepository) {
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.userRepository = userRepository;
-        this.permissionService = permissionService;
-        this.userConnectRepository = userConnectRepository;
-    }
-
-    @Cacheable(key = "#username", unless = "#result==null")
-    public User getUserByUsername(String username, Integer loginType){
-        if(loginType == LoginTypeConstant.EMAIL) {
-            return userRepository.findByEmail(username, UserStatusConstant.NORMAL, UserStatusConstant.NORMAL);
-        } else if(loginType == LoginTypeConstant.USERNAME){
-            return userRepository.findByUsername(username, UserStatusConstant.NORMAL, UserStatusConstant.NORMAL);
-        }
-
-        return null;
-    }
+public interface UserService extends IService<User> {
+    /**
+     * 根据用户名查询用户信息
+     * @param username 用户名
+     * @return 如果查询到返回用户信息，否则抛出NotFoundException
+     */
+    CurrentUser loadUserByUsername(String username);
 
     /**
-     * 获取用户信息
-     * @param userId 用户id
-     * @return 用户信息DTO对象
+     * 修改用户头像
+     * @param username 用户名
+     * @param avatar 头像url
      */
-    @Cacheable(unless = "#result==null")
-	public UserDTO getUserInfo(Integer userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        Assert.isTrue(userOptional.isPresent(), "用户不存在");
-        User user = userOptional.get();
-        Role role = user.getRole();
-        List<Permission> permissions = role.getPermissions();
-        return userDtoConverter(user, role, permissions);
-    }
+    void updateAvatar(String username, String avatar);
 
     /**
-     * 更新用户的最后登录时间
-     * @param userId 用户id
-     * @param ip 用户登录ip
+     * 判断用户名是否存在
+     * @param username 用户名
+     * @return 用户名已经存在返回{@code true},否则返回{@code false}
      */
-    public void updateLoginTime(Integer userId, String ip) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        Assert.isTrue(userOptional.isPresent(), "用户不存在");
-        User user = userOptional.get();
-        user.setId(userId);
-        user.setLastLoginTime(new Date());
-        user.setLastLoginIp(ip);
-        userRepository.save(user);
-    }
-
-    private UserDTO userDtoConverter(User user, Role role, List<Permission> permissions) {
-        UserDTO userDTO = new UserDTO().convertFrom(user);
-        //设置角色和权限
-        RoleDTO roleDTO = new RoleDTO().convertFrom(role);
-        userDTO.setRole(roleDTO);
-        userDTO.setRoleId(roleDTO.getName());
-
-        List<PermissionDTO> permissionDtoList = new ArrayList<>();
-        permissions.forEach(permission -> {
-            PermissionDTO permissionDTO = new PermissionDTO().convertFrom(permission);
-            permissionDtoList.add(permissionDTO);
-        });
-
-        roleDTO.setPermissions(permissionDtoList);
-        return userDTO;
-    }
+    boolean isPresentByUsername(String username);
 
     /**
-     * 用户登录
-     * @param loginParam 登录入数
-     * @param userDetails 用户信息
-     * @param ip 登录ip
-     * @return 如果登录成功返回token，否则返回null
+     * 判断邮箱是否已经被绑定
+     * @param email 邮箱地址
+     * @return 如果邮箱地址已经被绑定则返回{@code true},否则返回{@code false}
      */
-    public String login(LoginParam loginParam, MyUserDetails userDetails, String ip) {
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        boolean passwordEqual = bCryptPasswordEncoder.matches(loginParam.getPassword(), userDetails.getPassword());;
-        if(!passwordEqual) {
-            throw new AuthFailException("用户密码不正确");
-        }
-        // 颁发token
-        String token = jwtTokenUtil.generateToken(userDetails);
-        // 更新用户最后登录时间和ip
-        updateLoginTime(userDetails.getId(), ip);
-        return token;
-    }
+    boolean isPresentByEmail(String email);
 
     /**
-     * 第三方登录功能
-     * @param response 第三方登录响应对象
-     * @param ip 用户的ip地址
-     * @return 登录成功返回token，如果登录失败抛出AuthFailException异常由全局统一处理
+     * 判断用户密码是否正确
+     * @param username 用户名
+     * @param password 密码
+     * @return 如果正确返回{@code true},否则返回{@code false}
      */
-    @Transactional(rollbackFor = ServiceException.class)
-    public String oauthLogin(AuthResponse response, String ip) {
-        AuthUser authUser = (AuthUser)response.getData();
-        UserConnect userConnect = UserConnectConverter.convertTo(authUser, ip);
-        System.out.println(userConnect);
-        if(userConnect.getAccessToken() == null) {
-            // 登录失败
-            throw new AuthFailException("第三方授权登录失败");
-        }
-
-        // 登录成功
-        Optional<UserConnect> userConnectOptional = userConnectRepository.findByUuidAndProviderId(userConnect.getUuid(), userConnect.getProviderId());
-        // 判断数据库是存在一条UserConnect的记录
-        if(userConnectOptional.isPresent()) {
-            UserConnect userConnectModel = userConnectOptional.get();
-            User user = userConnectModel.getUser();
-            return jwtTokenUtil.generateToken(user);
-        } else {
-            // 登录成功但是数据库没有UserConnect记录保存一条,并默认根据user connect新增用户，然后颁发token
-            User user = userRepository.save(userConnect.getUser());
-            userConnect.setUser(user);
-            UserConnect newUserConnectRecord = userConnectRepository.save(userConnect);
-            return jwtTokenUtil.generateToken(newUserConnectRecord.getUser());
-        }
-    }
-
-    public Page<User> findAllByPage(Integer current, Integer pageSize) {
-        return userRepository.findAll(PageRequest.of(current, pageSize));
-    }
-
-    public Long count() {
-        return userRepository.count();
-    }
-
-    public Optional<User> findById(Integer id) {
-        return userRepository.findById(id);
-    }
-
-    public void updatePassword(Integer userId, String oldPassword, String newPassword) {
-        Optional<User> userOptional = findById(userId);
-        userOptional.ifPresent(user -> {
-            updatePassword(user, oldPassword, newPassword);
-        });
-    }
+    boolean isCorrectByPassword(@NotNull String username, @NotNull String password);
 
     /**
-     * 更新密码，如果用户数据库中的密码为空，则直接更新用户密码
-     * @param user 数据库中的用户
-     * @param oldPassword 旧的用户密码
-     * @param newPassword 用户的新密码
+     * 重置用户密码
+     * @param username 用户名
      */
-    private void updatePassword(User user, String oldPassword, String newPassword) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        if(StringUtils.isBlank(user.getPassword())) {
-            String encodedNewPassword = encoder.encode(newPassword);
-            user.setPassword(encodedNewPassword);
-            userRepository.save(user);
-            return;
-        }
+    void resetPassword(@NotNull String username);
 
-        if(StringUtils.isBlank(oldPassword)) {
-            throw new BadRequestException("原始密码不正确");
-        }
-        boolean matches = encoder.matches(oldPassword, user.getPassword());
-        if (!matches) {
-            throw new BadRequestException("原始密码不正确");
-        }
-        String encodedNewPassword = encoder.encode(newPassword);
-        // 密码匹配，更新密码
-        user.setPassword(encodedNewPassword);
-        userRepository.save(user);
-    }
+    /**
+     * 更新用户状态
+     * @param username 用户名
+     * @param status 用户状态
+     */
+    void updateStatus(@NotNull String username, UserStatusEnum status);
 
-    public boolean hasPassword(Integer userId) {
-        Optional<User> userOptional = findById(userId);
-        if(userOptional.isPresent()) {
-            User user = userOptional.get();
-            return StringUtils.isNotBlank(user.getPassword());
-        }
+    /**
+     * 根据用户名集合批量删除用户
+     * @param userNames 用户名集合
+     */
+    void removeByUserNames(List<String> userNames);
 
-        return true;
-    }
+    /**
+     * 修改用户密码
+     * @param username 用户名
+     * @param oldPassword 原始密码
+     * @param newPassword 新密码
+     */
+    void updatePassword(String username, String oldPassword, String newPassword);
 
-    public void update(User user) {
-        userRepository.save(user);
-    }
+    /**
+     * 根据用户名查询用户信息
+     * @param username 用户名
+     * @return 返回用户信息
+     */
+    Optional<User> getByUsername(String username);
+
+    /**
+     * 根据邮箱地址查询用户
+     * @param email 邮箱地址
+     * @return 返回用户optional
+     */
+    Optional<User> getByEmail(String email);
 }

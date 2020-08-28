@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
  *
  * @author johnniang
  */
-public class BeanUtilsException extends BaseException {
+public class BeanUtilsException extends AbstractCreekException {
 
     public BeanUtilsException(String message) {
         super(message);
@@ -15,5 +15,10 @@ public class BeanUtilsException extends BaseException {
 
     public BeanUtilsException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    @Override
+    public HttpStatus getStatus() {
+        return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 }

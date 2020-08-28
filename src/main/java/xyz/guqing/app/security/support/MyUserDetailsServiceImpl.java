@@ -1,19 +1,20 @@
 package xyz.guqing.app.security.support;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import xyz.guqing.app.model.entity.Permission;
-import xyz.guqing.app.model.entity.Resource;
-import xyz.guqing.app.model.entity.Role;
-import xyz.guqing.app.model.entity.User;
-import xyz.guqing.app.model.support.LoginTypeConstant;
+import xyz.guqing.app.model.bo.CurrentUser;
+import xyz.guqing.app.model.bo.MyUserDetails;
+import xyz.guqing.app.service.MenuService;
 import xyz.guqing.app.service.UserService;
-import java.util.HashSet;
+import xyz.guqing.app.utils.CreekUtils;
+
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 
 /**
@@ -21,60 +22,37 @@ import java.util.Set;
  * @date 2019-12-22 24:53
  */
 @Service
+@RequiredArgsConstructor
 public class MyUserDetailsServiceImpl implements UserDetailsService {
-    private UserService userService;
-
-    @Autowired
-    public MyUserDetailsServiceImpl(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserService userService;
+    private final MenuService menuService;
 
     @Override
     public MyUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return loadUser(username, LoginTypeConstant.USERNAME);
-    }
+        CurrentUser user = userService.loadUserByUsername(username);
+        String password = user.getPassword();
 
-    public MyUserDetails loadUserByUsername(String username, Integer loginType) throws UsernameNotFoundException {
-        return loadUser(username, loginType);
-    }
-
-    private MyUserDetails loadUser(String username, Integer loginType) {
-        MyUserDetails userDetails = new MyUserDetails();
-        User user = userService.getUserByUsername(username, loginType);
-
-        if(Objects.isNull(user)) {
-            return null;
+        String permissions = menuService.findUserPermissions(username);
+        List<GrantedAuthority> grantedAuthorities = AuthorityUtils.NO_AUTHORITIES;
+        if (StringUtils.isNotBlank(permissions)) {
+            grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(permissions);
         }
 
-        userDetails.setId(user.getId());
-        userDetails.setUsername(user.getUsername());
-        userDetails.setPassword(user.getPassword());
-        Role role = user.getRole();
+        MyUserDetails myUserDetails = new MyUserDetails(
+                username,
+                password,
+                true,
+                true,
+                true,
+                true,
+                grantedAuthorities
+        );
 
-        // 设置权限url
-        List<Permission> permissions = role.getPermissions();
+        BeanUtils.copyProperties(user, myUserDetails);
+        myUserDetails.setRoleIds(CreekUtils.commaSeparatedToList(user.getRoleId()));
+        myUserDetails.setRoleNames(CreekUtils.commaSeparatedToList(user.getRoleName()));
 
-        userDetails.setPermissionUrl(this.getActionUrl(permissions));
-
-
-        userDetails.setRole(role);
-        return userDetails;
+        // 返回自定义的 MyUserDetails
+        return myUserDetails;
     }
-    /**
-     * 根据权限列表获取权限对应的url集合
-     * @param permissions 权限菜单
-     * @return 返回权限url
-     */
-    private Set<String> getActionUrl(List<Permission> permissions) {
-        Set<String> actionUrl = new HashSet<>();
-        permissions.forEach(permission -> {
-            List<Resource> resources = permission.getResources();
-            resources.forEach(resource -> {
-                actionUrl.add(resource.getUrl());
-            });
-        });
-
-        return actionUrl;
-    }
-
 }

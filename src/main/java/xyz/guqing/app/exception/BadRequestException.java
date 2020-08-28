@@ -3,12 +3,13 @@ package xyz.guqing.app.exception;
 import org.springframework.http.HttpStatus;
 
 /**
- * bad request异常
+ * Exception caused by bad request.
  *
  * @author guqing
- * @date 2019-12-22 14:50
+ * @date 2020-04-04 16:03
  */
-public class BadRequestException extends BaseException {
+public class BadRequestException extends AbstractCreekException {
+    private static final long serialVersionUID = 2888541634229909695L;
 
     public BadRequestException(String message) {
         super(message);
@@ -16,5 +17,10 @@ public class BadRequestException extends BaseException {
 
     public BadRequestException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    @Override
+    public HttpStatus getStatus() {
+        return HttpStatus.BAD_REQUEST;
     }
 }

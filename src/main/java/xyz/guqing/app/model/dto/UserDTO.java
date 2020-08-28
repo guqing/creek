@@ -1,35 +1,41 @@
 package xyz.guqing.app.model.dto;
 
 import lombok.Data;
-import xyz.guqing.app.model.entity.User;
+import xyz.guqing.app.model.dos.UserDO;
 import xyz.guqing.app.model.support.OutputConverter;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 用户信息dto
- *
  * @author guqing
- * @date 2019-08-11 9:29
+ * @date 2020-05-30
  */
 @Data
-public class UserDTO implements OutputConverter<UserDTO,User> {
-	private Integer id;
-	private String nickname;
-	private String username;
-	private String description;
-	private Date birthday;
-	private String email;
-	private String avatar;
-	private Integer status;
-	private Integer gender;
-	private String telephone;
-	private String lastLoginIp;
-	private Date lastLoginTime;
-	private Date createTime;
-	private String roleId;
-	private RoleDTO role;
+public class UserDTO implements OutputConverter<UserDTO, UserDO> {
+    private Long id;
+
+    private String username;
+
+    private String nickname;
+
+    private String email;
+
+    private String mobile;
+
+    private Long groupId;
+
+    private String groupName;
+
+    private List<String> roleIds;
+
+    private List<String> roleNames;
+
+    private String avatar;
+
+    private String description;
+
+    private Integer status;
+
+    private LocalDateTime createTime;
 }

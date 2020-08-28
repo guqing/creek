@@ -1,7 +1,6 @@
 package xyz.guqing.app.model.support;
 
 import org.springframework.lang.Nullable;
-import xyz.guqing.app.utils.BeanUtils;
 import xyz.guqing.app.utils.ReflectionUtils;
 
 import java.lang.reflect.ParameterizedType;
