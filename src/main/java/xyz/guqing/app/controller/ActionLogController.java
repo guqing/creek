@@ -19,7 +19,7 @@ import xyz.guqing.app.service.ActionLogService;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/ums/log/action")
+@RequestMapping("/log/action")
 public class ActionLogController {
     private final ActionLogService actionLogService;
 

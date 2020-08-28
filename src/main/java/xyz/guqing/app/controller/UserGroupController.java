@@ -18,7 +18,7 @@ import java.util.List;
  * @date 2020-06-05
  */
 @RestController
-@RequestMapping("/ums/group")
+@RequestMapping("/group")
 @RequiredArgsConstructor
 public class UserGroupController {
     private final UserGroupService userGroupService;

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @date 2020-05-29
  */
 @RestController
-@RequestMapping("/ums/menu")
+@RequestMapping("/menu")
 public class MenuController {
     private final MenuService menuService;
 

@@ -16,7 +16,7 @@ import xyz.guqing.app.utils.SecurityUserHelper;
  */
 @Slf4j
 @RestController
-@RequestMapping("/ums/user")
+@RequestMapping("/user")
 public class UserController {
     private final UserService userService;
 

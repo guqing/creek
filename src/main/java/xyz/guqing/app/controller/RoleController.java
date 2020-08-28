@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestController
-@RequestMapping("/ums/role")
+@RequestMapping("/role")
 @RequiredArgsConstructor
 public class RoleController {
     private final RoleService roleService;

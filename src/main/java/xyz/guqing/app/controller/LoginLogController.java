@@ -20,7 +20,7 @@ import xyz.guqing.app.service.UserLoginLogService;
  */
 @Slf4j
 @RestController
-@RequestMapping("/ums/log/login")
+@RequestMapping("/log/login")
 @RequiredArgsConstructor
 public class LoginLogController {
     private final UserLoginLogService userLoginLogService;
