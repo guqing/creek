@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>xyz.guqing</groupId>
-    <artifactId>springboot-jpa-starter</artifactId>
+    <artifactId>creek</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>springboot-jpa-starter</name>
+    <name>creek</name>
     <description>Spring Boot+SpringSecurity+Mybatis plus的简化开发脚手架，简化基础代码编写快速上手</description>
 
     <properties>

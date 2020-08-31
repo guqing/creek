@@ -1,6 +1,6 @@
-# springboot-jpa-starter
+# Creek
 ## 简介
-这是一个基于`SpringBoot 2.2.2.RELEASE`，用于搭建`RESTful API`工程的脚手架, 使用`Spring Security` + `JWT Token` + `RBAC`的方式实现认证和授权，持久层使用`Spring data Jpa`。避免每次重复编写认证和授权功能、缓存、异常处理、参数校验等代码，直接上手业务代码，不再烦恼于构建项目与风格统一。
+这是一个基于`SpringBoot 2.2.2.RELEASE`，用于搭建`RESTful API`快速开发脚手架, 使用`Spring Security` + `JWT Token` + `RBAC`的方式实现认证和授权，持久层使用`Spring data Jpa`。避免每次重复编写认证和授权功能、缓存、异常处理、参数校验等代码，直接上手业务代码，不再烦恼于构建项目与风格统一。
 
 ## 快速开始
 1.创建数据库
