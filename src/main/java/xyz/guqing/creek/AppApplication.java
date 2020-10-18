@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("xyz.guqing.app.mapper")
+@MapperScan("xyz.guqing.creek.mapper")
 public class AppApplication {
 
     public static void main(String[] args) {
