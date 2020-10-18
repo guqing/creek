@@ -1,22 +1,32 @@
+server:
+  port: 8086
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 使用h2数据库
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:~/.creek/db/creek
+    schema: classpath:db/schema-h2.sql
+    data: classpath:db/data-h2.sql
+    initialization-mode: never
     username: root
     password: 123456
-    url: jdbc:mysql://localhost:3306/springboot_jpa_starter?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+  h2:
+    console:
+      settings:
+        web-allow-others: true
+      path: /h2-console
+      enabled: true
 justauth:
   enabled: true
   type:
     github:
-      client-id: 2917d3df2590484f0b7f
-      client-secret: d47162aee0647f05d822e2507f6ccc5d98e95ded
-      redirect-uri: http://igry2v.natappfree.cc/auth/github/callback
+      client-id:
+      client-secret:
+      redirect-uri:
     weibo:
-      client-id: 227955467
-      client-secret: a64d03e26a6a8f769e5ebc7a697f8c18
-      redirect-uri: http://c7trbk.natappfree.cc/auth/weibo/callback
+      client-id:
+      client-secret:
+      redirect-uri:
 logging:
   level:
-    xyz.guqing.app: debug
-server:
-  port: 8081
+    xyz.guqing.creek: debug

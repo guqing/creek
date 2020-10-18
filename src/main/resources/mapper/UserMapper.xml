@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="xyz.guqing.app.mapper.UserMapper">
-    <select id="findByUsername" parameterType="string" resultType="xyz.guqing.app.model.bo.CurrentUser">
+<mapper namespace="xyz.guqing.creek.mapper.UserMapper">
+    <select id="findByUsername" parameterType="string" resultType="xyz.guqing.creek.model.bo.CurrentUser">
         SELECT u.id,
                u.username,
                u.nickname,
@@ -19,12 +19,70 @@
                d.group_name,
                GROUP_CONCAT(r.id)        roleId,
                GROUP_CONCAT(r.ROLE_NAME) roleName
-        FROM `user` u
+        FROM user u
                  LEFT JOIN user_group d ON (u.group_id = d.id)
                  LEFT JOIN user_role ur ON (u.id = ur.user_id)
                  LEFT JOIN role r ON r.id = ur.role_id
         WHERE u.username = #{username}
         group by u.username, u.id, u.email, u.mobile, u.password, u.status, u.create_time, u.gender, u.group_id
                , u.last_login_time, u.modify_time, u.description, u.avatar
+    </select>
+
+    <select id="findUserBy"
+            parameterType="xyz.guqing.creek.model.params.UserQuery"
+            resultType="xyz.guqing.creek.model.dos.UserDO">
+        SELECT
+        u.id,
+        u.username,
+        u.nickname,
+        u.email,
+        u.mobile,
+        u.status,
+        u.deleted,
+        u.create_time createTime,
+        u.gender,
+        u.group_id,
+        u.last_login_time lastLoginTime,
+        u.modify_time modifyTime,
+        u.description,
+        u.avatar,
+        g.group_name groupName,
+        GROUP_CONCAT(r.id) roleId,
+        GROUP_CONCAT(r.role_name) roleName
+        FROM
+        `user` u
+        LEFT JOIN user_group g ON (u.group_id = g.id)
+        LEFT JOIN user_role ur ON (u.id = ur.user_id)
+        LEFT JOIN role r ON (r.id = ur.role_id)
+        WHERE
+        u.deleted=0
+        <if test="userQuery.username != null and userQuery.username != ''">
+            AND u.username = #{userQuery.username}
+        </if>
+        <if test="userQuery.groupId != null and userQuery.groupId != ''">
+            AND g.id = #{userQuery.groupId}
+        </if>
+        <if test="userQuery.gender != null and userQuery.gender != ''">
+            AND u.gender = #{userQuery.gender}
+        </if>
+        <if test="userQuery.status != null and userQuery.status != ''">
+            AND u.status = #{userQuery.status}
+        </if>
+        <if test="userQuery.mobile != null and userQuery.mobile != ''">
+            AND u.mobile = #{userQuery.mobile}
+        </if>
+        <if test="userQuery.groupName != null and userQuery.groupName != ''">
+            AND g.group_name like CONCAT('%',#{userQuery.groupName},'%')
+        </if>
+        <if test="userQuery.createTimeFrom != null">
+            And u.create_time &gt; #{userQuery.createTimeFrom}
+        </if>
+        <if test="userQuery.createTimeTo!= null">
+            And u.create_time &lt; #{userQuery.createTimeTo}
+        </if>
+        group by u.username,u.id,u.email,u.mobile,u.status,u.create_time,u.gender,
+        u.group_id,u.last_login_time,u.modify_time,u.description,
+        u.avatar
+        order by u.create_time desc
     </select>
 </mapper>
