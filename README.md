@@ -47,7 +47,7 @@ spring:
 - 基于自定义指令细划到按钮级别权限控制
 - aop+自定义注解处理日志
 
-[前端使用示例项目](https://github.com/guqing/creek)
+[前端使用示例项目](https://github.com/guqing/creek-ui)
 
 ## 项目预览
 ![workplace](./docs/preview/workplace.png)
