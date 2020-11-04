@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "auth.security.login")
 public class LoginProperties {
-    private String loginUrl = "/auth/login";
-    private String logoutUrl = "/auth/logout";
+    private String loginUrl = "/authorize/token";
+    private String logoutUrl = "/authorize/logout";
     /**
      * 社交登陆成功后跳转地址
      */

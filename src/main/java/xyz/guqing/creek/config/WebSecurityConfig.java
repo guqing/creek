@@ -30,10 +30,10 @@ import xyz.guqing.creek.security.support.MyUserDetailsServiceImpl;
 @EnableGlobalMethodSecurity(prePostEnabled=true)
 @EnableConfigurationProperties({SecurityProperties.class})
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private MyAuthenticationEntryPoint authenticationEntryPoint;
-    private MyAccessDeniedHandler accessDeniedHandler;
-    private MyLogoutSuccessHandler logoutSuccessHandler;
-    private MyUserDetailsServiceImpl userDetailsService;
+    private final MyAuthenticationEntryPoint authenticationEntryPoint;
+    private final MyAccessDeniedHandler accessDeniedHandler;
+    private final MyLogoutSuccessHandler logoutSuccessHandler;
+    private final MyUserDetailsServiceImpl userDetailsService;
     private final LoginProperties loginProperties;
 
     private AuthenticationManager authenticationManager;
@@ -42,7 +42,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return authenticationManager;
     }
 
-    @Autowired
     public WebSecurityConfig(SecurityProperties securityProperties,
                              MyAuthenticationEntryPoint authenticationEntryPoint,
                              MyAccessDeniedHandler accessDeniedHandler,
@@ -97,13 +96,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 ).permitAll()
 
                 // 对登录登出注册要允许匿名访问
-                .antMatchers("/auth/**", loginProperties.getLogoutUrl())
+                .antMatchers("/authorize/**", loginProperties.getLogoutUrl())
                 .permitAll()
-
-                //.anyRequest()
-                // RBAC 动态 url 认证
-                //.access("@rbacauthorityservice.hasPermission(request,authentication)")
-
                 .and()
                 .logout().logoutUrl(loginProperties.getLogoutUrl())
                 .logoutSuccessHandler(logoutSuccessHandler)
