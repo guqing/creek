@@ -28,7 +28,7 @@ public class ThreadPoolConfig {
 
         // 创建带名字的线程工厂,使新创建的线程都有名字
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-                .setNameFormat("travelPath-pool-%d").build();
+                .setNameFormat("creek-pool-%d").build();
 
         // 创建线程池
         return new ThreadPoolExecutor(poolProperties.getCorePoolSize(),
