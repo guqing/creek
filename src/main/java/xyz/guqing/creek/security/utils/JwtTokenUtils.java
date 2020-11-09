@@ -28,7 +28,6 @@ import java.util.Map;
 public class JwtTokenUtils implements Serializable {
     private static final long serialVersionUID = -5625635588908941275L;
 
-    private static final String CLAIM_KEY_USER_ID = "ID";
     private static final String CLAIM_KEY_USERNAME = "sub";
     private static final String CLAIM_KEY_CREATED = "created";
 
@@ -42,58 +41,37 @@ public class JwtTokenUtils implements Serializable {
         if(StringUtils.isBlank(token)) {
             return null;
         }
-        String username;
         try {
             final Claims claims = getClaimsFromToken(token);
-            username = claims.getSubject();
+            return claims.getSubject();
         } catch (Exception e) {
             log.debug("从token获取用户名出错,参数:{}",token);
-            username = null;
-        }
-        return username;
-    }
-
-    public Integer getUserIdFromToken(String token) {
-        if(StringUtils.isBlank(token)) {
             return null;
         }
-        Integer userId;
-        try {
-            final Claims claims = getClaimsFromToken(token);
-            userId = (Integer) claims.get(CLAIM_KEY_USER_ID);
-        } catch (Exception e) {
-            userId = null;
-        }
-        return userId;
     }
 
     public Date getCreatedDateFromToken(String token) {
-        Date created;
         try {
             final Claims claims = getClaimsFromToken(token);
-            created = new Date((Long) claims.get(CLAIM_KEY_CREATED));
+            return new Date((Long) claims.get(CLAIM_KEY_CREATED));
         } catch (Exception e) {
-            created = null;
+            return null;
         }
-        return created;
     }
 
     public Date getExpirationDateFromToken(String token) {
-        Date expiration;
         try {
             final Claims claims = getClaimsFromToken(token);
-            expiration = claims.getExpiration();
+            return claims.getExpiration();
         } catch (Exception e) {
-            expiration = null;
+            return null;
         }
-        return expiration;
     }
 
     public Claims getClaimsFromToken(String token) {
         Claims claims;
         try {
             claims = Jwts.parser()
-                    .setAllowedClockSkewSeconds(tokenProperties.getAllowedClockSkewSeconds())
                     .setSigningKey(tokenProperties.getSecret())
                     .parseClaimsJws(token)
                     .getBody();
@@ -105,8 +83,14 @@ public class JwtTokenUtils implements Serializable {
         return claims;
     }
 
-    private Date generateExpirationDate() {
+    private Date generateTokenExpirationDate() {
         return new Date(System.currentTimeMillis() + tokenProperties.getExpirationTime() * 1000);
+    }
+
+    private Date generateRefreshExpirationDate() {
+        long refreshTokenExpireSeconds = tokenProperties.getExpirationTime() + tokenProperties.getAllowedClockSkewSeconds();
+        long refreshTokenExpireMillis = System.currentTimeMillis() +  refreshTokenExpireSeconds * 1000;
+        return new Date(refreshTokenExpireMillis);
     }
 
     private Boolean isTokenExpired(String token) {
@@ -124,32 +108,39 @@ public class JwtTokenUtils implements Serializable {
     }
 
     public String generateToken(MyUserDetails userDetails) {
-        Map<String, Object> claims = getClaimsMap(userDetails.getUsername(), userDetails.getId());
+        Map<String, Object> claims = getClaimsMap(userDetails.getUsername());
         return generateToken(claims);
     }
 
-    private Map<String, Object> getClaimsMap(String username, Long userId) {
-        Map<String, Object> claims = new HashMap<>(4);
-        claims.put(CLAIM_KEY_USER_ID, userId);
+    private Map<String, Object> getClaimsMap(String username) {
+        Map<String, Object> claims = new HashMap<>(3, 1);
         claims.put(CLAIM_KEY_USERNAME, username);
         claims.put(CLAIM_KEY_CREATED, new Date());
         return claims;
     }
 
     public String generateToken(User user) {
-        Map<String, Object> claims = getClaimsMap(user.getUsername(), user.getId());
+        Map<String, Object> claims = getClaimsMap(user.getUsername());
         return generateToken(claims);
     }
 
-    public String generateToken(Long id, String username) {
-        Map<String, Object> claims = getClaimsMap(username, id);
+    public String generateToken(String username) {
+        Map<String, Object> claims = getClaimsMap(username);
         return generateToken(claims);
     }
 
     private String generateToken(Map<String, Object> claims) {
+        return generateToken(claims, generateTokenExpirationDate());
+    }
+
+    private String generateRefreshToken(Map<String, Object> claims) {
+        return generateToken(claims, generateRefreshExpirationDate());
+    }
+
+    private String generateToken(Map<String, Object> claims, Date expireDate) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setExpiration(generateExpirationDate())
+                .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret())
                 .compact();
     }
@@ -169,7 +160,7 @@ public class JwtTokenUtils implements Serializable {
         try {
             final Claims claims = getClaimsFromToken(token);
             claims.put(CLAIM_KEY_CREATED, new Date());
-            refreshedToken = generateToken(claims);
+            refreshedToken = generateRefreshToken(claims);
         } catch (Exception e) {
             refreshedToken = null;
         }

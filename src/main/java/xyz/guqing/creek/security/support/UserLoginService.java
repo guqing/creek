@@ -65,7 +65,7 @@ public class UserLoginService {
         Authentication authenticate = webSecurityConfig.getAuthenticationManager().authenticate(authRequest);
         MyUserDetails userDetails = (MyUserDetails)authenticate.getPrincipal();
 
-        String token = jwtTokenUtils.generateToken(userDetails.getId(), userDetails.getUsername());
+        String token = jwtTokenUtils.generateToken(userDetails.getUsername());
         // 推送登录成功时间
         applicationContext.publishEvent(new UserLoginEvent(this, userDetails.getUsername()));
         return getAccessToken(token);
