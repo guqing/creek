@@ -52,7 +52,7 @@ public class JwtTokenUtils implements Serializable {
     }
 
     public AccessToken refreshToken(String token) {
-        if(!canTokenBeRefreshed(token)) {
+        if (!canTokenBeRefreshed(token)) {
             throw new AuthenticationException("登录已过期");
         }
         String username = getUsernameFromToken(token);
@@ -60,14 +60,14 @@ public class JwtTokenUtils implements Serializable {
     }
 
     public String getUsernameFromToken(String token) {
-        if(StringUtils.isBlank(token)) {
+        if (StringUtils.isBlank(token)) {
             return null;
         }
         try {
             final Claims claims = getClaimsFromToken(token);
             return claims.getSubject();
         } catch (Exception e) {
-            log.debug("从token获取用户名出错,参数:{}",token);
+            log.debug("从token获取用户名出错,参数:{}", token);
             return null;
         }
     }
@@ -91,18 +91,32 @@ public class JwtTokenUtils implements Serializable {
     }
 
     public Claims getClaimsFromToken(String token) {
-        Claims claims;
         try {
-            claims = Jwts.parser()
+            return Jwts.parser()
                     .setSigningKey(tokenProperties.getSecret())
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            log.debug("解析token出错,参数:{}",token);
-            claims = null;
+            // ignore this exception
+            log.debug("解析token出错,参数:{}", token);
+            return null;
         }
+    }
 
-        return claims;
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        MyUserDetails myUserDetails = (MyUserDetails) userDetails;
+        final String username = getUsernameFromToken(token);
+
+        return (
+                username.equals(myUserDetails.getUsername())
+                        && !isTokenExpired(token)
+        );
+    }
+
+    public Boolean canTokenBeRefreshed(String token) {
+        final Date expiration = getExpirationDateFromToken(token);
+        // 判断是否可以刷新
+        return expiration != null && expiration.before(new Date());
     }
 
     private Date generateTokenExpirationDate() {
@@ -111,27 +125,22 @@ public class JwtTokenUtils implements Serializable {
 
     private Date generateRefreshExpirationDate() {
         long refreshTokenExpireSeconds = tokenProperties.getExpirationTime() + tokenProperties.getAllowedClockSkewSeconds();
-        long refreshTokenExpireMillis = System.currentTimeMillis() +  refreshTokenExpireSeconds * 1000;
+        long refreshTokenExpireMillis = System.currentTimeMillis() + refreshTokenExpireSeconds * 1000;
         return new Date(refreshTokenExpireMillis);
     }
 
     private Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
-        if(expiration != null) {
-            //判断是否过期
+        if (expiration != null) {
+            // 判断是否过期
             return expiration.before(new Date());
         }
-        //获取不到expiration肯定过期
+        // 获取不到expiration肯定过期
         return true;
     }
 
     private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
         return (lastPasswordReset != null && created.before(lastPasswordReset));
-    }
-
-    public String generateToken(MyUserDetails userDetails) {
-        Map<String, Object> claims = getClaimsMap(userDetails.getUsername());
-        return generateToken(claims);
     }
 
     private Map<String, Object> getClaimsMap(String username) {
@@ -155,10 +164,6 @@ public class JwtTokenUtils implements Serializable {
         return generateToken(claims, generateTokenExpirationDate());
     }
 
-    private String generateRefreshToken(Map<String, Object> claims) {
-        return generateToken(claims, generateRefreshExpirationDate());
-    }
-
     private String generateToken(Map<String, Object> claims, Date expireDate) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -167,35 +172,14 @@ public class JwtTokenUtils implements Serializable {
                 .compact();
     }
 
-    public Boolean canTokenBeRefreshed(String token) {
-        final Date expiration = getExpirationDateFromToken(token);
-        if(expiration != null && expiration.before(new Date())) {
-            //判断是否可以刷新
-            return true;
-        }
-        //获取不到expiration肯定过期并且不能刷新
-        return false;
-    }
-
     private String getRefreshToken(String token) {
-        String refreshedToken;
         try {
             final Claims claims = getClaimsFromToken(token);
             claims.put(CLAIM_KEY_CREATED, new Date());
-            refreshedToken = generateRefreshToken(claims);
+            return generateToken(claims, generateRefreshExpirationDate());
         } catch (Exception e) {
-            refreshedToken = null;
+            // ignore this exception
+            return null;
         }
-        return refreshedToken;
-    }
-
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        MyUserDetails myUserDetails = (MyUserDetails) userDetails;
-        final String username = getUsernameFromToken(token);
-
-        return (
-                username.equals(myUserDetails.getUsername())
-                        && !isTokenExpired(token)
-        );
     }
 }
