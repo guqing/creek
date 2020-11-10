@@ -30,12 +30,10 @@ import xyz.guqing.creek.model.enums.GenderEnum;
 import xyz.guqing.creek.model.enums.UserStatusEnum;
 import xyz.guqing.creek.model.params.BindUserParam;
 import xyz.guqing.creek.security.model.AccessToken;
-import xyz.guqing.creek.security.properties.TokenProperties;
 import xyz.guqing.creek.security.utils.JwtTokenUtils;
 import xyz.guqing.creek.service.UserConnectionService;
 import xyz.guqing.creek.service.UserRoleService;
 import xyz.guqing.creek.service.UserService;
-import xyz.guqing.creek.utils.DateUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -55,7 +53,6 @@ public class UserLoginService {
     private final PasswordEncoder passwordEncoder;
     private final UserRoleService userRoleService;
     private final JwtTokenUtils jwtTokenUtils;
-    private final TokenProperties tokenProperties;
 
     private final WebSecurityConfig webSecurityConfig;
 
@@ -65,10 +62,9 @@ public class UserLoginService {
         Authentication authenticate = webSecurityConfig.getAuthenticationManager().authenticate(authRequest);
         MyUserDetails userDetails = (MyUserDetails)authenticate.getPrincipal();
 
-        String token = jwtTokenUtils.generateToken(userDetails.getUsername());
         // 推送登录成功时间
         applicationContext.publishEvent(new UserLoginEvent(this, userDetails.getUsername()));
-        return getAccessToken(token);
+        return jwtTokenUtils.generateAccessToken(userDetails.getUsername());
     }
 
     public SocialLoginDTO resolveLogin(String type, AuthCallback callback) {
@@ -125,19 +121,9 @@ public class UserLoginService {
         user.setAvatar(authUser.getAvatar());
         // 保存第三方绑定帐号
         userConnectionService.create(user.getId(), authUser);
-        String token = jwtTokenUtils.generateToken(user);
         // 发送登录成功事件
         applicationContext.publishEvent(new UserLoginEvent(this, user.getUsername()));
-        return getAccessToken(token);
-    }
-
-    private AccessToken getAccessToken(String token) {
-        AccessToken accessToken = new AccessToken(token);
-        long expirationTime = tokenProperties.getExpirationTime();
-        Date expiration = DateUtils.dateAfterSeconds(new Date(), (int) expirationTime);
-        accessToken.setExpiration(expiration);
-        accessToken.setTokenType(tokenProperties.getTokenPrefix().toLowerCase());
-        return accessToken;
+        return jwtTokenUtils.generateAccessToken(user.getUsername());
     }
 
     /**

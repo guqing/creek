@@ -58,10 +58,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
                             request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                } else if (jwtTokenUtils.canTokenBeRefreshed(token)) {
-                    // token过期了，需要刷新token
-                    String newToken = jwtTokenUtils.generateToken(userDetails);
-                    response.setHeader(tokenHeader, newToken);
                 }
             }
         }

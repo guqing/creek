@@ -10,8 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import xyz.guqing.creek.model.bo.MyUserDetails;
 import xyz.guqing.creek.model.entity.User;
+import xyz.guqing.creek.security.model.AccessToken;
 import xyz.guqing.creek.security.properties.SecurityProperties;
 import xyz.guqing.creek.security.properties.TokenProperties;
+import xyz.guqing.creek.utils.DateUtils;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -35,6 +37,17 @@ public class JwtTokenUtils implements Serializable {
 
     public JwtTokenUtils(TokenProperties tokenProperties) {
         this.tokenProperties = tokenProperties;
+    }
+
+    public AccessToken generateAccessToken(String username) {
+        String token = generateToken(username);
+        String refreshToken = refreshToken(username);
+        AccessToken accessToken = new AccessToken(token);
+        accessToken.setRefreshToken(refreshToken);
+        long expirationTime = tokenProperties.getExpirationTime();
+        accessToken.setExpiration(expirationTime);
+        accessToken.setTokenType(tokenProperties.getTokenPrefix().toLowerCase());
+        return accessToken;
     }
 
     public String getUsernameFromToken(String token) {

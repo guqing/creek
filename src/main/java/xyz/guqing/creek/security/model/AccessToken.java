@@ -25,7 +25,7 @@ public class AccessToken implements Serializable {
     private Map<String, Object> additionalInformation;
 
     @JsonIgnore
-    private Date expiration;
+    private long expiration;
 
     public AccessToken(String accessToken) {
         this.tokenType = "Bearer".toLowerCase();
@@ -33,7 +33,7 @@ public class AccessToken implements Serializable {
         this.accessToken = accessToken;
     }
 
-    public int getExpiresIn() {
-        return this.expiration != null ? Long.valueOf((this.expiration.getTime() - System.currentTimeMillis()) / 1000L).intValue() : 0;
+    public long getExpiresIn() {
+        return this.expiration;
     }
 }
