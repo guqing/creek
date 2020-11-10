@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import xyz.guqing.creek.exception.AuthenticationException;
 import xyz.guqing.creek.model.bo.MyUserDetails;
 import xyz.guqing.creek.model.entity.User;
 import xyz.guqing.creek.security.model.AccessToken;
@@ -41,13 +42,21 @@ public class JwtTokenUtils implements Serializable {
 
     public AccessToken generateAccessToken(String username) {
         String token = generateToken(username);
-        String refreshToken = refreshToken(username);
+        String refreshToken = getRefreshToken(username);
         AccessToken accessToken = new AccessToken(token);
         accessToken.setRefreshToken(refreshToken);
         long expirationTime = tokenProperties.getExpirationTime();
         accessToken.setExpiration(expirationTime);
         accessToken.setTokenType(tokenProperties.getTokenPrefix().toLowerCase());
         return accessToken;
+    }
+
+    public AccessToken refreshToken(String token) {
+        if(!canTokenBeRefreshed(token)) {
+            throw new AuthenticationException("登录已过期");
+        }
+        String username = getUsernameFromToken(token);
+        return generateAccessToken(username);
     }
 
     public String getUsernameFromToken(String token) {
@@ -168,7 +177,7 @@ public class JwtTokenUtils implements Serializable {
         return false;
     }
 
-    public String refreshToken(String token) {
+    private String getRefreshToken(String token) {
         String refreshedToken;
         try {
             final Claims claims = getClaimsFromToken(token);

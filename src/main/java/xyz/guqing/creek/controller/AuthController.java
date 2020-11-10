@@ -7,6 +7,7 @@ import xyz.guqing.creek.model.params.LoginParam;
 import xyz.guqing.creek.model.support.ResultEntity;
 import xyz.guqing.creek.security.model.AccessToken;
 import xyz.guqing.creek.security.support.UserLoginService;
+import xyz.guqing.creek.security.utils.JwtTokenUtils;
 import xyz.guqing.creek.service.UserService;
 import xyz.guqing.creek.utils.SecurityUserHelper;
 
@@ -22,11 +23,18 @@ import javax.validation.Valid;
 public class AuthController {
     private final UserLoginService userLoginService;
     private final UserService userService;
+    private final JwtTokenUtils jwtTokenUtils;
 
     @PostMapping("/token")
     public ResultEntity<AccessToken> login(@RequestBody @Valid LoginParam loginParam) {
         // 校验登录信息
         AccessToken accessToken = userLoginService.login(loginParam.getUsername(), loginParam.getPassword());
+        return ResultEntity.ok(accessToken);
+    }
+
+    @GetMapping("/refresh")
+    public ResultEntity<AccessToken> refreshToken(@RequestParam String token) {
+        AccessToken accessToken = jwtTokenUtils.refreshToken(token);
         return ResultEntity.ok(accessToken);
     }
 
