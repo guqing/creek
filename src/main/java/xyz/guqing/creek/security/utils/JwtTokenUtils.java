@@ -42,7 +42,7 @@ public class JwtTokenUtils implements Serializable {
 
     public AccessToken generateAccessToken(String username) {
         String token = generateToken(username);
-        String refreshToken = getRefreshToken(username);
+        String refreshToken = getRefreshToken(token);
         AccessToken accessToken = new AccessToken(token);
         accessToken.setRefreshToken(refreshToken);
         long expirationTime = tokenProperties.getExpirationTime();
@@ -116,7 +116,7 @@ public class JwtTokenUtils implements Serializable {
     public Boolean canTokenBeRefreshed(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         // 判断是否可以刷新
-        return expiration != null && expiration.before(new Date());
+        return expiration != null && expiration.after(new Date());
     }
 
     private Date generateTokenExpirationDate() {

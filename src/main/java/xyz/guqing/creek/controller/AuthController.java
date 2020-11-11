@@ -6,6 +6,7 @@ import xyz.guqing.creek.model.dto.UserInfoDTO;
 import xyz.guqing.creek.model.params.LoginParam;
 import xyz.guqing.creek.model.support.ResultEntity;
 import xyz.guqing.creek.security.model.AccessToken;
+import xyz.guqing.creek.security.model.RefreshTokenParam;
 import xyz.guqing.creek.security.support.UserLoginService;
 import xyz.guqing.creek.security.utils.JwtTokenUtils;
 import xyz.guqing.creek.service.UserService;
@@ -32,9 +33,9 @@ public class AuthController {
         return ResultEntity.ok(accessToken);
     }
 
-    @GetMapping("/refresh")
-    public ResultEntity<AccessToken> refreshToken(@RequestParam String token) {
-        AccessToken accessToken = jwtTokenUtils.refreshToken(token);
+    @PostMapping("/refresh")
+    public ResultEntity<AccessToken> refreshToken(@RequestBody @Valid RefreshTokenParam refreshTokenParam) {
+        AccessToken accessToken = jwtTokenUtils.refreshToken(refreshTokenParam.getToken());
         return ResultEntity.ok(accessToken);
     }
 

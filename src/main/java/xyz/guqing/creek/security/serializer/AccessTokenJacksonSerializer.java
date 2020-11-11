@@ -25,7 +25,7 @@ public final class AccessTokenJacksonSerializer extends JsonSerializer<AccessTok
         }
 
         long expiration = token.getExpiration();
-        jgen.writeNumberField("expires_in",  expiration / 1000L);
+        jgen.writeNumberField("expires_in",  expiration);
 
         Map<String, Object> additionalInformation = token.getAdditionalInformation();
         for (String key : additionalInformation.keySet()) {
