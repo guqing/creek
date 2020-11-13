@@ -65,7 +65,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private String parseToken(String tokenHeader) {
-        Assert.notNull(tokenHeader, "解析token出错，token不能为空");
+        if(StringUtils.isBlank(tokenHeader)) {
+            return null;
+        }
 
         TokenProperties tokenProperties = securityProperties.getTokenProperties();
         String tokenPrefix = tokenProperties.getTokenPrefix();
@@ -73,10 +75,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return tokenHeader;
         }
 
-        int tokenPrefixLength = tokenProperties.getTokenPrefix().length();
-        String subToken = tokenHeader.substring(0, tokenPrefixLength);
-        if (StringUtils.equalsIgnoreCase(subToken, tokenPrefix)) {
-            return tokenHeader.substring(tokenPrefixLength + 1);
+        if(StringUtils.startsWithIgnoreCase(tokenHeader, tokenPrefix)) {
+            return tokenHeader.substring(tokenPrefix.length());
         }
         // 如果获取到的token不是以配置的token头开始则返回null,忽略token
         return null;
