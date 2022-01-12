@@ -17,7 +17,7 @@ import java.io.IOException;
  * @date 2019-12-22 24:53
  */
 @Component
-public class MyAuthenticationFailureHandler implements AuthenticationFailureHandler {
+public class JwtAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {

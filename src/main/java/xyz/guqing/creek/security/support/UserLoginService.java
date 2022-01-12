@@ -10,11 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import xyz.guqing.creek.config.WebSecurityConfig;
+import xyz.guqing.creek.config.authentication.JwtWebSecurityConfig;
 import xyz.guqing.creek.event.UserLoginEvent;
 import xyz.guqing.creek.exception.AlreadyExistsException;
 import xyz.guqing.creek.exception.AuthenticationException;
@@ -30,7 +31,7 @@ import xyz.guqing.creek.model.enums.GenderEnum;
 import xyz.guqing.creek.model.enums.UserStatusEnum;
 import xyz.guqing.creek.model.params.BindUserParam;
 import xyz.guqing.creek.security.model.AccessToken;
-import xyz.guqing.creek.security.utils.JwtTokenUtils;
+import xyz.guqing.creek.config.authentication.JwtTokenProvider;
 import xyz.guqing.creek.service.UserConnectionService;
 import xyz.guqing.creek.service.UserRoleService;
 import xyz.guqing.creek.service.UserService;
@@ -52,19 +53,17 @@ public class UserLoginService {
     private final UserConnectionService userConnectionService;
     private final PasswordEncoder passwordEncoder;
     private final UserRoleService userRoleService;
-    private final JwtTokenUtils jwtTokenUtils;
+    private final JwtTokenProvider tokenProvider;
 
-    private final WebSecurityConfig webSecurityConfig;
+    private final JwtWebSecurityConfig webSecurityConfig;
 
     public AccessToken login(String username, String password) {
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
         // 运行UserDetailsService的loadUserByUsername 再次封装Authentication
-        Authentication authenticate = webSecurityConfig.getAuthenticationManager().authenticate(authRequest);
-        MyUserDetails userDetails = (MyUserDetails)authenticate.getPrincipal();
-
+        webSecurityConfig.getAuthenticationManager().authenticate(authRequest);
         // 推送登录成功时间
-        applicationContext.publishEvent(new UserLoginEvent(this, userDetails.getUsername()));
-        return jwtTokenUtils.generateAccessToken(userDetails.getUsername());
+        applicationContext.publishEvent(new UserLoginEvent(this, username));
+        return tokenProvider.getToken(username);
     }
 
     public SocialLoginDTO resolveLogin(String type, AuthCallback callback) {
@@ -81,7 +80,8 @@ public class UserLoginService {
 
         User user = userService.getById(userConnection.getUserId());
         socialLoginDTO.setIsBind(true);
-        socialLoginDTO.setAccessToken(jwtTokenUtils.generateToken(user));
+        AccessToken token = tokenProvider.getToken(user.getUsername());
+        socialLoginDTO.setAccessToken(token);
 
         // 发送登录成功时间
         applicationContext.publishEvent(new UserLoginEvent(this, user.getUsername()));
@@ -123,7 +123,7 @@ public class UserLoginService {
         userConnectionService.create(user.getId(), authUser);
         // 发送登录成功事件
         applicationContext.publishEvent(new UserLoginEvent(this, user.getUsername()));
-        return jwtTokenUtils.generateAccessToken(user.getUsername());
+        return tokenProvider.getToken(user.getUsername());
     }
 
     /**

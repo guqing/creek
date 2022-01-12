@@ -14,17 +14,17 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "auth.security.token")
 public class TokenProperties {
     /**
-     * 30分钟(以秒s计)
+     * 30分钟(以分钟计)
      */
-    private long expirationTime = 7200;
+    private int expireAt = 1;
     /**
-     * 允许过期时间时钟偏移秒s为单位
+     * 允许过期时间时钟偏移分钟为单位
      */
-    private long allowedClockSkewSeconds = 1800;
+    private long allowedClockSkewSeconds = 30;
     /**
      *  JWT密码
      */
-    private String secret = "CreekSecret123456";
+    private String secret = "hello world";
     /**
      * Token前缀
      */
@@ -32,5 +32,5 @@ public class TokenProperties {
     /**
      * 存放Token的Header Key
      */
-    private String headerString = "Authorization";
+    private String header = "Authorization";
 }

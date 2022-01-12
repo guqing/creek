@@ -17,7 +17,7 @@ import java.io.IOException;
  * @date 2019-12-22 24:53
  */
 @Component
-public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {

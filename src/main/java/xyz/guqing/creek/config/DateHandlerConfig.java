@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
  * @author guqing
  * @date 2020-06-14
  */
-@Configuration
+//@Configuration
 public class DateHandlerConfig {
     /**
      * 默认日期时间格式

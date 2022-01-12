@@ -1,5 +1,9 @@
-package xyz.guqing.creek.config;
+package xyz.guqing.creek.config.authentication;
 
+import com.auth0.spring.security.api.JwtAuthenticationProvider;
+import com.auth0.spring.security.api.JwtWebSecurityConfigurer;
+import java.nio.charset.StandardCharsets;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,13 +14,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import xyz.guqing.creek.security.filter.JwtTokenFilter;
-import xyz.guqing.creek.security.handler.MyAccessDeniedHandler;
-import xyz.guqing.creek.security.handler.MyAuthenticationEntryPoint;
-import xyz.guqing.creek.security.handler.MyLogoutSuccessHandler;
+import xyz.guqing.creek.security.handler.JwtLogoutSuccessHandler;
 import xyz.guqing.creek.security.properties.LoginProperties;
 import xyz.guqing.creek.security.properties.SecurityProperties;
 import xyz.guqing.creek.security.support.MyUserDetailsServiceImpl;
@@ -26,37 +27,36 @@ import xyz.guqing.creek.security.support.MyUserDetailsServiceImpl;
  */
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled=true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableConfigurationProperties({SecurityProperties.class})
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private final MyAuthenticationEntryPoint authenticationEntryPoint;
-    private final MyAccessDeniedHandler accessDeniedHandler;
-    private final MyLogoutSuccessHandler logoutSuccessHandler;
+public class JwtWebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final JwtLogoutSuccessHandler jwtLogoutSuccessHandler;
     private final MyUserDetailsServiceImpl userDetailsService;
     private final LoginProperties loginProperties;
 
+    @Value(value = "${auth0.apiAudience}")
+    private String audience;
+
+    @Value(value = "${auth0.issuer}")
+    private String issuer;
+
     private AuthenticationManager authenticationManager;
+
+    public JwtWebSecurityConfig(SecurityProperties securityProperties,
+        JwtLogoutSuccessHandler jwtLogoutSuccessHandler,
+        MyUserDetailsServiceImpl userDetailsService) {
+        this.loginProperties = securityProperties.getLoginProperties();
+        this.jwtLogoutSuccessHandler = jwtLogoutSuccessHandler;
+        this.userDetailsService = userDetailsService;
+    }
 
     public AuthenticationManager getAuthenticationManager() {
         return authenticationManager;
     }
 
-    public WebSecurityConfig(SecurityProperties securityProperties,
-                             MyAuthenticationEntryPoint authenticationEntryPoint,
-                             MyAccessDeniedHandler accessDeniedHandler,
-                             MyLogoutSuccessHandler logoutSuccessHandler,
-                             MyUserDetailsServiceImpl userDetailsService) {
-        this.loginProperties = securityProperties.getLoginProperties();
-        // 未登陆时返回 JSON 格式的数据给前端（否则为 html）
-        this.authenticationEntryPoint = authenticationEntryPoint;
-
-        this.accessDeniedHandler = accessDeniedHandler;
-        this.logoutSuccessHandler = logoutSuccessHandler;
-        this.userDetailsService = userDetailsService;
-    }
-
     @Bean
-    public JwtTokenFilter authenticationTokenFilterBean() throws Exception {
+    public JwtTokenFilter jwtTokenFilter() {
         return new JwtTokenFilter();
     }
 
@@ -66,52 +66,42 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure( AuthenticationManagerBuilder auth ) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         this.authenticationManager = authenticationManagerBean();
-        auth.userDetailsService( userDetailsService );
+        auth.userDetailsService(userDetailsService);
     }
 
     @Override
-    protected void configure( HttpSecurity httpSecurity ) throws Exception {
-        httpSecurity.cors().and().csrf().disable()
-                // 使用 JWT，关闭token
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+    protected void configure(HttpSecurity httpSecurity) throws Exception {
+        JwtWebSecurityConfigurer
+            .forRS256(audience, issuer)
+            .configure(httpSecurity)
+            .authorizeRequests()
+            // 允许对于网站静态资源的无授权访问
+            .antMatchers(HttpMethod.GET,
+                "/",
+                "/*.html",
+                "/favicon.ico",
+                "/**/*.html",
+                "/**/*.css",
+                "/**/*.js",
+                "/*.jpg",
+                "/*.png"
+            ).permitAll()
 
-                .httpBasic().authenticationEntryPoint(authenticationEntryPoint)
-
-                .and()
-                .authorizeRequests()
-                // 允许对于网站静态资源的无授权访问
-                .antMatchers(HttpMethod.GET,
-                        "/",
-                        "/*.html",
-                        "/favicon.ico",
-                        "/**/*.html",
-                        "/**/*.css",
-                        "/**/*.js",
-                        "/*.jpg",
-                        "/*.png"
-                ).permitAll()
-
-                // 对登录登出注册要允许匿名访问
-                .antMatchers("/authorize/**", loginProperties.getLogoutUrl())
-                .permitAll()
-                .and()
-                .logout().logoutUrl(loginProperties.getLogoutUrl())
-                .logoutSuccessHandler(logoutSuccessHandler)
-                .permitAll();
-
+            // 对登录登出注册要允许匿名访问
+            .antMatchers("/authorize/**", loginProperties.getLogoutUrl())
+            .permitAll()
+            .and()
+            .logout().logoutUrl(loginProperties.getLogoutUrl())
+            .logoutSuccessHandler(jwtLogoutSuccessHandler)
+            .permitAll();
 
         // 无权访问
-        httpSecurity.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+        //httpSecurity.exceptionHandling().accessDeniedHandler(jwtAccessDeniedHandler);
         httpSecurity
-                .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtTokenFilter(),
+                UsernamePasswordAuthenticationFilter.class);
         httpSecurity.headers().cacheControl();
-    }
-
-    @Override
-    public UserDetailsService userDetailsServiceBean() throws Exception {
-        return super.userDetailsServiceBean();
     }
 }

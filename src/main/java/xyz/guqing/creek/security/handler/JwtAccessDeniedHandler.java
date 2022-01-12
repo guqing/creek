@@ -16,7 +16,7 @@ import java.io.IOException;
  * @date 2019-12-22 24:53
  */
 @Component
-public class MyAccessDeniedHandler implements AccessDeniedHandler {
+public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException, ServletException {
