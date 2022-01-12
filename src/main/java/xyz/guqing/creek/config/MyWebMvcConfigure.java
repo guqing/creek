@@ -36,7 +36,7 @@ public class MyWebMvcConfigure implements WebMvcConfigurer {
 
         registry.addMapping("/**")
                 //允许所有前端站点调用
-                .allowedOrigins("*")
+                .allowedOriginPatterns("*")
                 .allowCredentials(true)
                 .allowedMethods("GET", "POST", "DELETE", "PUT")
                 .maxAge(3600);
@@ -44,7 +44,7 @@ public class MyWebMvcConfigure implements WebMvcConfigurer {
 
     private CorsConfiguration buildConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedOriginPattern("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addExposedHeader("Authorization");
