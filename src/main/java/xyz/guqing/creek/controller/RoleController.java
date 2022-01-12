@@ -34,21 +34,14 @@ public class RoleController {
     private final RoleService roleService;
 
     @GetMapping("/options")
+    @PreAuthorize("hasAuthority('read:role')")
     public ResultEntity<List<RoleDTO>> listAll() {
         List<Role> list = roleService.list();
         return ResultEntity.ok(convertTo(list));
     }
 
-    private List<RoleDTO> convertTo(List<Role> list) {
-        if(CollectionUtils.isEmpty(list)) {
-            return Collections.emptyList();
-        }
-        return list.stream()
-                .map(role -> (RoleDTO)new RoleDTO().convertFrom(role))
-                .collect(Collectors.toList());
-    }
-
     @GetMapping("list")
+    @PreAuthorize("hasAuthority('read:role')")
     public ResultEntity<PageInfo<RoleDTO>> listBy(RoleQuery roleQuery, PageQuery pageQuery) {
         roleQuery.setPageQuery(pageQuery);
         log.debug("角色查询对象：{}", JSONObject.toJSONString(roleQuery));
@@ -57,11 +50,13 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('read:role')")
     public ResultEntity<RoleDTO> get(@PathVariable Long id) {
         return ResultEntity.ok(roleService.getRoleById(id));
     }
 
     @PostMapping("/save")
+    @PreAuthorize("hasAuthority('write:role')")
     @ControllerEndpoint(operation = "保存/更新角色", exceptionMessage = "保存/更新角色失败")
     public ResultEntity<String> createOrUpdate(@RequestBody @Valid RoleParam roleParam) {
         Role role = roleParam.convertTo();
@@ -70,10 +65,19 @@ public class RoleController {
     }
 
     @DeleteMapping
-    @PreAuthorize("hasAuthority('role:delete')")
+    @PreAuthorize("hasAuthority('delete:role')")
     @ControllerEndpoint(operation = "删除角色", exceptionMessage = "删除角色失败")
     public ResultEntity<String> deleteRoles(@RequestBody List<Long> roleIds) {
         roleService.deleteRoles(roleIds);
         return ResultEntity.ok();
+    }
+
+    private List<RoleDTO> convertTo(List<Role> list) {
+        if(CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        return list.stream()
+            .map(role -> (RoleDTO)new RoleDTO().convertFrom(role))
+            .collect(Collectors.toList());
     }
 }

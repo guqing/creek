@@ -18,26 +18,26 @@ import java.util.List;
  * @date 2020-06-05
  */
 @RestController
-@RequestMapping("/group")
+@RequestMapping("/groups")
 @RequiredArgsConstructor
 public class UserGroupController {
     private final UserGroupService userGroupService;
 
     @GetMapping("/list")
-    @PreAuthorize("hasAuthority('group:view')")
+    @PreAuthorize("hasAuthority('read:group')")
     public ResultEntity<List<UserGroupTree>> list(String name) {
         List<UserGroupTree> userGroupTrees = userGroupService.listBy(name);
         return ResultEntity.ok(userGroupTrees);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('group:view')")
+    @PreAuthorize("hasAuthority('read:group')")
     public ResultEntity<UserGroup> getById(@PathVariable Long id) {
         return  ResultEntity.ok(userGroupService.getById(id));
     }
 
     @PostMapping("/save")
-    @PreAuthorize("hasAuthority('group:save')")
+    @PreAuthorize("hasAuthority('write:group')")
     @ControllerEndpoint(operation = "保存用户组", exceptionMessage = "保存用户组失败")
     public ResultEntity<String> createOrUpdate(@RequestBody @Valid UserGroupParam userGroupParam) {
         UserGroup userGroup = userGroupParam.convertTo();
@@ -46,7 +46,7 @@ public class UserGroupController {
     }
 
     @DeleteMapping
-    @PreAuthorize("hasAuthority('group:delete')")
+    @PreAuthorize("hasAuthority('delete:group')")
     @ControllerEndpoint(operation = "删除用户组", exceptionMessage = "删除用户组失败")
     public ResultEntity<String> delete(List<Long> groupIds) {
         userGroupService.removeByIds(groupIds);

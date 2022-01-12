@@ -38,7 +38,7 @@ public class UserController {
     }
 
     @GetMapping("/list")
-    @PreAuthorize("hasAuthority('user:view')")
+    @PreAuthorize("hasAuthority('read:user')")
     public ResultEntity<PageInfo<UserDTO>> listUserByPage(UserQuery userQuery,
                                                           PageQuery pageQuery) {
         log.debug("用户列表查询参数: [{}]", userQuery);
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('user:add')")
+    @PreAuthorize("hasAuthority('create:user')")
     @ControllerEndpoint(operation = "新增用户", exceptionMessage = "新增用户失败")
     public ResultEntity<String> addUser(@RequestBody @Validated(CreateCheck.class) UserParam userParam) {
         userService.createUser(userParam);
@@ -55,7 +55,7 @@ public class UserController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAuthority('user:update')")
+    @PreAuthorize("hasAuthority('write:user')")
     @ControllerEndpoint(operation = "修改用户", exceptionMessage = "修改用户失败")
     public ResultEntity<String> updateUser(@RequestBody @Validated(UpdateCheck.class) UserParam userParam) {
         userService.updateUser(userParam);
@@ -95,7 +95,7 @@ public class UserController {
     }
 
     @DeleteMapping
-    @PreAuthorize("hasAuthority('user:delete')")
+    @PreAuthorize("hasAuthority('delete:user')")
     @ControllerEndpoint(operation = "删除用户", exceptionMessage = "删除用户失败")
     public ResultEntity<String> deleteUsers(@RequestBody List<String> usernameList) {
         // 使用逻辑删除
@@ -123,7 +123,7 @@ public class UserController {
     }
 
     @PutMapping("/reset/{username}")
-    @PreAuthorize("hasAuthority('user:reset')")
+    @PreAuthorize("hasAuthority('write:user')")
     @ControllerEndpoint(operation = "重置用户密码", exceptionMessage = "重置用户密码失败")
     public ResultEntity<String> resetPassword(@PathVariable String username) {
         userService.resetPassword(username);
@@ -131,7 +131,7 @@ public class UserController {
     }
 
     @PutMapping("/lock/{username}")
-    @PreAuthorize("hasAuthority('user:update')")
+    @PreAuthorize("hasAuthority('write:user')")
     @ControllerEndpoint(operation = "锁定用户帐号", exceptionMessage = "锁定用户帐号失败")
     public ResultEntity<String> lockUser(@PathVariable String username) {
         if(username.equals(SecurityUserHelper.getCurrentUsername())) {
@@ -143,7 +143,7 @@ public class UserController {
     }
 
     @PutMapping("/unlock/{username}")
-    @PreAuthorize("hasAuthority('user:update')")
+    @PreAuthorize("hasAuthority('write:user')")
     @ControllerEndpoint(operation = "解锁用户帐号", exceptionMessage = "解锁用户帐号失败")
     public ResultEntity<String> unlockUser(@PathVariable String username) {
         userService.updateStatus(username, UserStatusEnum.NORMAL);

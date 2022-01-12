@@ -1,21 +1,25 @@
 package xyz.guqing.creek.utils;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import xyz.guqing.creek.model.constant.StringConstant;
-
-import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
 /**
  * @author guqing
@@ -25,6 +29,18 @@ import java.util.stream.IntStream;
 public class CreekUtils {
     private static final Pattern CHINESE_PATTERN = Pattern.compile("[\u4e00-\u9fa5]");
     private static final String UNKNOW = "unknown";
+
+    public static List<Long> splitToLong(String ids) {
+        if (StringUtils.isBlank(ids)) {
+            return Collections.emptyList();
+        }
+        String[] roleIds = StringUtils.split(ids, StringConstant.COMMA);
+        List<Long> results = new ArrayList<>(roleIds.length);
+        for (String roleId : roleIds) {
+            results.add(Long.valueOf(roleId));
+        }
+        return results;
+    }
 
     /**
      * 驼峰转下划线
@@ -170,7 +186,9 @@ public class CreekUtils {
     }
 
     public static List<String> commaSeparatedToList(String str) {
-        Assert.notNull(str, "The parapeter str cannot be null");
+        if (StringUtils.isBlank(str)) {
+            return Collections.emptyList();
+        }
         return Arrays.asList(str.split(StringConstant.COMMA));
     }
 

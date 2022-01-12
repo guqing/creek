@@ -13,6 +13,4 @@ import xyz.guqing.creek.model.support.Tree;
 @EqualsAndHashCode(callSuper = true)
 public class MenuTree extends Tree<Menu> {
     private String icon;
-    private String type;
-    private String perms;
 }

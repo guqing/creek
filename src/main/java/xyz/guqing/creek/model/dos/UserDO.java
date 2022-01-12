@@ -13,6 +13,4 @@ import xyz.guqing.creek.model.entity.User;
 @EqualsAndHashCode(callSuper = true)
 public class UserDO extends User {
     private String groupName;
-    private String roleId;
-    private String roleName;
 }

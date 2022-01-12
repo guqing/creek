@@ -1,6 +1,13 @@
 package xyz.guqing.creek.security.support;
 
 import com.xkcoding.justauth.AuthRequestFactory;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
@@ -10,35 +17,27 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import xyz.guqing.creek.config.authentication.JwtTokenProvider;
 import xyz.guqing.creek.config.authentication.JwtWebSecurityConfig;
 import xyz.guqing.creek.event.UserLoginEvent;
 import xyz.guqing.creek.exception.AlreadyExistsException;
 import xyz.guqing.creek.exception.AuthenticationException;
 import xyz.guqing.creek.exception.BindSocialAccountException;
 import xyz.guqing.creek.exception.NotFoundException;
-import xyz.guqing.creek.model.bo.MyUserDetails;
 import xyz.guqing.creek.model.constant.CreekConstant;
 import xyz.guqing.creek.model.dto.SocialLoginDTO;
 import xyz.guqing.creek.model.entity.User;
 import xyz.guqing.creek.model.entity.UserConnection;
-import xyz.guqing.creek.model.entity.UserRole;
 import xyz.guqing.creek.model.enums.GenderEnum;
 import xyz.guqing.creek.model.enums.UserStatusEnum;
 import xyz.guqing.creek.model.params.BindUserParam;
-import xyz.guqing.creek.security.model.AccessToken;
-import xyz.guqing.creek.config.authentication.JwtTokenProvider;
+import xyz.guqing.creek.security.AccessToken;
 import xyz.guqing.creek.service.UserConnectionService;
-import xyz.guqing.creek.service.UserRoleService;
 import xyz.guqing.creek.service.UserService;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author guqing
@@ -47,32 +46,36 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserLoginService {
+
     private final ApplicationContext applicationContext;
     private final AuthRequestFactory factory;
     private final UserService userService;
     private final UserConnectionService userConnectionService;
     private final PasswordEncoder passwordEncoder;
-    private final UserRoleService userRoleService;
     private final JwtTokenProvider tokenProvider;
 
     private final JwtWebSecurityConfig webSecurityConfig;
 
     public AccessToken login(String username, String password) {
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken authRequest =
+            new UsernamePasswordAuthenticationToken(username, password);
         // 运行UserDetailsService的loadUserByUsername 再次封装Authentication
-        webSecurityConfig.getAuthenticationManager().authenticate(authRequest);
+        Authentication authenticate =
+            webSecurityConfig.getAuthenticationManager().authenticate(authRequest);
         // 推送登录成功时间
         applicationContext.publishEvent(new UserLoginEvent(this, username));
-        return tokenProvider.getToken(username);
+
+        return tokenProvider.getToken(authenticate);
     }
 
     public SocialLoginDTO resolveLogin(String type, AuthCallback callback) {
         AuthUser authUser = getAuthUserFromCallback(type, callback);
         String source = authUser.getSource();
-        UserConnection userConnection = userConnectionService.getBySourceAndUuid(source, authUser.getUuid());
+        UserConnection userConnection =
+            userConnectionService.getBySourceAndUuid(source, authUser.getUuid());
 
         SocialLoginDTO socialLoginDTO = new SocialLoginDTO();
-        if(Objects.isNull(userConnection)) {
+        if (Objects.isNull(userConnection)) {
             socialLoginDTO.setIsBind(false);
             socialLoginDTO.setAuthUser(authUser);
             return socialLoginDTO;
@@ -80,7 +83,7 @@ public class UserLoginService {
 
         User user = userService.getById(userConnection.getUserId());
         socialLoginDTO.setIsBind(true);
-        AccessToken token = tokenProvider.getToken(user.getUsername());
+        AccessToken token = login(user.getUsername(), user.getPassword());
         socialLoginDTO.setAccessToken(token);
 
         // 发送登录成功时间
@@ -106,7 +109,7 @@ public class UserLoginService {
     public AccessToken socialSignLogin(BindUserParam registerUser) {
         // 校验验证码
         Optional<User> optionalUser = userService.getByEmail(registerUser.getEmail());
-        if(optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             // 用户存在，则抛出异常
             throw new AlreadyExistsException("该用户已经存在");
         }
@@ -123,7 +126,7 @@ public class UserLoginService {
         userConnectionService.create(user.getId(), authUser);
         // 发送登录成功事件
         applicationContext.publishEvent(new UserLoginEvent(this, user.getUsername()));
-        return tokenProvider.getToken(user.getUsername());
+        return login(user.getUsername(), user.getPassword());
     }
 
     /**
@@ -134,31 +137,27 @@ public class UserLoginService {
      */
     @Transactional(rollbackFor = Exception.class)
     public User registerUser(User user) {
+        user.setRoleIds(CreekConstant.REGISTER_ROLE_ID);
         userService.save(user);
-
-        UserRole userRole = new UserRole();
-        userRole.setUserId(user.getId());
-        // 注册用户角色 ID
-        userRole.setRoleId(CreekConstant.REGISTER_ROLE_ID);
-        userRoleService.save(userRole);
         return user;
     }
 
     /**
      * 使用第三方用户信息对毛坯用户润色，让其信息更加光鲜
-     * @param email 邮箱地址
+     *
+     * @param email           邮箱地址
      * @param encryptPassword 加密后的密码
-     * @param authUser 第三方登录获取的用户信息
+     * @param authUser        第三方登录获取的用户信息
      * @return 返回润色后的用户信息对象
      */
     private User authUserPatina(String email, String encryptPassword, AuthUser authUser) {
         User user = shapingBaseUser(email, encryptPassword);
-        if(StringUtils.isNotBlank(authUser.getNickname())) {
+        if (StringUtils.isNotBlank(authUser.getNickname())) {
             user.setNickname(authUser.getNickname());
         }
         user.setAvatar(authUser.getAvatar());
         user.setDescription(authUser.getRemark());
-        if(StringUtils.isNotBlank(authUser.getUsername())) {
+        if (StringUtils.isNotBlank(authUser.getUsername())) {
             user.setUsername(authUser.getUsername() + authUser.getUuid());
         }
         return user;
@@ -166,7 +165,8 @@ public class UserLoginService {
 
     /**
      * 塑造一个毛坯用户，填充了基础信息
-     * @param email 电子邮件
+     *
+     * @param email           电子邮件
      * @param encryptPassword 加密后的密码
      * @return 返回填充了信息的用户
      */
@@ -192,12 +192,13 @@ public class UserLoginService {
 
     public void bind(String username, AuthUser authUser) {
         String source = authUser.getSource();
-        UserConnection userConnection = userConnectionService.getBySourceAndUuid(source, authUser.getUuid());
+        UserConnection userConnection =
+            userConnectionService.getBySourceAndUuid(source, authUser.getUuid());
         if (userConnection != null) {
             throw new BindSocialAccountException("绑定失败，该第三方账号已被绑定,请先解绑后重试");
         }
         User user = userService.getByUsername(username);
-        if(user != null) {
+        if (user != null) {
             userConnectionService.create(user.getId(), authUser);
         }
     }
@@ -223,11 +224,12 @@ public class UserLoginService {
         Long userId = getUserIdByUsername(username);
 
         List<UserConnection> userConnections = userConnectionService.listByUserId(userId);
-        if(CollectionUtils.isEmpty(userConnections)) {
+        if (CollectionUtils.isEmpty(userConnections)) {
             return Collections.emptyList();
         }
 
-        return userConnections.stream().map(UserConnection::getProviderName).collect(Collectors.toList());
+        return userConnections.stream().map(UserConnection::getProviderName)
+            .collect(Collectors.toList());
     }
 
     public void unbind(String username, String oauthType) {
@@ -237,7 +239,7 @@ public class UserLoginService {
 
     private Long getUserIdByUsername(String username) {
         User user = userService.getByUsername(username);
-        if(user == null) {
+        if (user == null) {
             throw new NotFoundException("用户不存在");
         }
         return user.getId();

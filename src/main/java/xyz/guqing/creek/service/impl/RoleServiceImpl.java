@@ -11,12 +11,10 @@ import xyz.guqing.creek.mapper.RoleMapper;
 import xyz.guqing.creek.model.dos.RoleDO;
 import xyz.guqing.creek.model.dto.RoleDTO;
 import xyz.guqing.creek.model.entity.Role;
-import xyz.guqing.creek.model.entity.UserRole;
 import xyz.guqing.creek.model.params.RoleQuery;
 import xyz.guqing.creek.model.support.PageQuery;
-import xyz.guqing.creek.service.RoleMenuService;
+import xyz.guqing.creek.service.RoleResourceService;
 import xyz.guqing.creek.service.RoleService;
-import xyz.guqing.creek.service.UserRoleService;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,18 +27,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
-    private final UserRoleService userRoleService;
-    private final RoleMenuService roleMenuService;
-
-    @Override
-    public void saveUserRoles(Long userId, List<Long> roleIds) {
-        roleIds.forEach(roleId -> {
-            UserRole userRole = new UserRole();
-            userRole.setUserId(userId);
-            userRole.setRoleId(roleId);
-            userRoleService.save(userRole);
-        });
-    }
+    private final RoleResourceService roleMenuService;
 
     @Override
     public Page<Role> listBy(RoleQuery roleQuery) {
@@ -86,6 +73,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         removeByIds(roleIds);
 
         roleMenuService.deleteByRoleIds(roleIds);
-        userRoleService.deleteByRoleIds(roleIds);
+        roleMenuService.deleteByRoleIds(roleIds);
     }
 }

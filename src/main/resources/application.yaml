@@ -1,6 +1,8 @@
 server:
   port: 8086
 spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
   datasource:
     # 使用h2数据库
     driver-class-name: org.h2.Driver
@@ -27,6 +29,9 @@ justauth:
       client-id:
       client-secret:
       redirect-uri:
+auth0:
+  issuer: https://your-domain.eu.auth0.com/
+  apiAudience: http://your-audience
 logging:
   level:
     xyz.guqing.creek: debug

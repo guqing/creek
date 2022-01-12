@@ -5,22 +5,34 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.guqing.creek.exception.BadArgumentException;
 import xyz.guqing.creek.exception.NotFoundException;
+import xyz.guqing.creek.mapper.UserGroupMapper;
 import xyz.guqing.creek.mapper.UserMapper;
-import xyz.guqing.creek.mapper.UserRoleMapper;
 import xyz.guqing.creek.model.bo.CurrentUser;
 import xyz.guqing.creek.model.constant.CreekConstant;
 import xyz.guqing.creek.model.dos.UserDO;
 import xyz.guqing.creek.model.dto.UserDTO;
 import xyz.guqing.creek.model.dto.UserInfoDTO;
+import xyz.guqing.creek.model.entity.Role;
 import xyz.guqing.creek.model.entity.User;
-import xyz.guqing.creek.model.entity.UserRole;
+import xyz.guqing.creek.model.entity.UserGroup;
 import xyz.guqing.creek.model.enums.GenderEnum;
 import xyz.guqing.creek.model.enums.UserStatusEnum;
 import xyz.guqing.creek.model.params.UserParam;
@@ -30,14 +42,9 @@ import xyz.guqing.creek.model.support.PageQuery;
 import xyz.guqing.creek.service.MenuService;
 import xyz.guqing.creek.service.RoleService;
 import xyz.guqing.creek.service.UserService;
+import xyz.guqing.creek.utils.CreekUtils;
 import xyz.guqing.creek.utils.PageUtils;
 import xyz.guqing.creek.utils.ServiceUtils;
-import xyz.guqing.creek.utils.CreekUtils;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * <p>
@@ -50,10 +57,11 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
     private final RoleService roleService;
     private final MenuService menuService;
-    private final UserRoleMapper userRoleMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserGroupMapper userGroupMapper;
 
     @Override
     public PageInfo<UserDTO> listByPage(UserQuery userQuery, PageQuery pageQuery) {
@@ -61,8 +69,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Page<UserDO> userPage = this.baseMapper.findUserBy(PageUtils.convert(pageQuery), userQuery);
         List<UserDTO> userDtoList = ServiceUtils.convertToList(userPage.getRecords(), user -> {
             UserDTO userDTO = new UserDTO().convertFrom(user);
-            userDTO.setRoleIds(CreekUtils.commaSeparatedToList(user.getRoleId()));
-            userDTO.setRoleNames(CreekUtils.commaSeparatedToList(user.getRoleName()));
+            List<String> roleIds = CreekUtils.commaSeparatedToList(user.getRoleIds());
+            userDTO.setRoleIds(roleIds);
+            List<String> roleNames = roleService.listByIds(roleIds).stream()
+                .map(Role::getRoleName)
+                .collect(Collectors.toList());
+            userDTO.setRoleNames(roleNames);
             return userDTO;
         });
         return PageInfo.convertFrom(userPage, userDtoList);
@@ -75,41 +87,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setNickname(user.getUsername());
         user.setStatus(UserStatusEnum.NORMAL.getValue());
         user.setGender(GenderEnum.MALE.name());
-
+        user.setRoleIds(StringUtils.join(userParam.getRoleIds(), ","));
         // 加密密码
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         //保存用户信息
         save(user);
-
-        // 保存用户角色
-        roleService.saveUserRoles(user.getId(), userParam.getRoleIds());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateUser(UserParam userParam) {
         User user = userParam.convertTo();
+        user.setRoleIds(StringUtils.join(userParam.getRoleIds(), ","));
         // 加密密码
         String password = user.getPassword();
-        if(password != null) {
+        if (password != null) {
             user.setPassword(passwordEncoder.encode(password));
         }
 
         this.updateById(user);
-
-        // 更新用户角色,先删除在插入
-        LambdaQueryWrapper<UserRole> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.eq(UserRole::getUserId, user.getId());
-        userRoleMapper.delete(queryWrapper);
-        List<Long> roleIds = userParam.getRoleIds();
-        // 插入
-        roleIds.forEach(roleId -> {
-            UserRole userRole = new UserRole();
-            userRole.setUserId(user.getId());
-            userRole.setRoleId(roleId);
-            userRoleMapper.insert(userRole);
-        });
     }
 
     @Override
@@ -117,7 +114,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void updateAvatar(String username, String avatar) {
         LambdaUpdateWrapper<User> updateWrapper = Wrappers.lambdaUpdate(User.class);
         updateWrapper.set(User::getAvatar, avatar)
-                .eq(User::getUsername, username);
+            .eq(User::getUsername, username);
         update(updateWrapper);
     }
 
@@ -151,9 +148,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public UserInfoDTO getUserInfo(String username) {
         CurrentUser currentUser = loadUserByUsername(username);
         UserInfoDTO userInfoDTO = convertTo(currentUser);
-        String permissions = menuService.findUserPermissions(username);
-        List<String> permissionList = CreekUtils.commaSeparatedToList(permissions);
-        userInfoDTO.setPermissions(permissionList);
+        Authentication authentication = SecurityContextHolder.getContext()
+            .getAuthentication();
+        Set<String> scopes = authentication.getAuthorities()
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toSet());
+        userInfoDTO.setScopes(scopes);
+
+        UserGroup userGroup = userGroupMapper.selectById(currentUser.getGroupId());
+        if (userGroup != null) {
+            userInfoDTO.setGroupName(userGroup.getGroupName());
+        }
         return userInfoDTO;
     }
 
@@ -166,16 +172,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private UserInfoDTO convertTo(CurrentUser currentUser) {
         UserInfoDTO userInfoDTO = new UserInfoDTO();
-        BeanUtils.copyProperties(currentUser,userInfoDTO);
-        userInfoDTO.setRoleIds(CreekUtils.commaSeparatedToList(currentUser.getRoleId()));
-        userInfoDTO.setRoleNames(CreekUtils.commaSeparatedToList(currentUser.getRoleName()));
+        BeanUtils.copyProperties(currentUser, userInfoDTO);
+        List<Long> roleIds = new ArrayList<>();
+        List<String> roleNames = new ArrayList<>();
+        for (Role role : currentUser.getRoles()) {
+            roleIds.add(role.getId());
+            roleNames.add(role.getRoleName());
+        }
+        userInfoDTO.setRoleIds(roleIds);
+        userInfoDTO.setRoleNames(roleNames);
         return userInfoDTO;
     }
 
     @Override
     public CurrentUser loadUserByUsername(String username) {
         Optional<CurrentUser> userOptional = baseMapper.findByUsername(username);
-        return userOptional.orElseThrow(() -> new NotFoundException("用户不存在"));
+        return userOptional.map(user -> {
+                List<String> roleIds = CreekUtils.commaSeparatedToList(user.getRoleIds());
+                user.setRoles(roleService.listByIds(roleIds));
+                return user;
+            })
+            .orElseThrow(() -> new NotFoundException("用户不存在"));
     }
 
     @Override
@@ -189,7 +206,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public void resetPassword(String username) {
         User user = getByUsername(username);
-        if(user == null) {
+        if (user == null) {
             throw new NotFoundException("用户不存在");
         }
         String defaultPassword = passwordEncoder.encode(CreekConstant.DEFAULT_PASSWORD);
@@ -202,7 +219,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public void updateStatus(String username, UserStatusEnum status) {
         User user = getByUsername(username);
-        if(user == null) {
+        if (user == null) {
             throw new NotFoundException("用户不存在");
         }
         user.setStatus(status.getValue());
@@ -220,14 +237,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void updatePassword(String username, String oldPassword, String newPassword) {
         boolean correctByPassword = isCorrectByPassword(username, oldPassword);
-        if(!correctByPassword) {
+        if (!correctByPassword) {
             throw new BadArgumentException("原始密码不正确");
         }
         // 修改密码
         String encodedPassword = passwordEncoder.encode(newPassword);
         LambdaUpdateWrapper<User> updateWrapper = Wrappers.lambdaUpdate();
         updateWrapper.set(User::getPassword, encodedPassword)
-                .eq(User::getUsername, username);
+            .eq(User::getUsername, username);
         update(updateWrapper);
     }
 }

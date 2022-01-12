@@ -2,6 +2,7 @@ package xyz.guqing.creek.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -59,15 +60,7 @@ public class User extends BaseEntity {
      */
     private String gender;
 
-    /**
-     * 是否开启tab，0关闭 1开启
-     */
-    private Integer isTab;
-
-    /**
-     * 主题
-     */
-    private String theme;
+    private String roleIds;
 
     /**
      * 头像

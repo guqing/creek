@@ -16,12 +16,6 @@ import java.util.List;
  * @since 2020-05-21
  */
 public interface MenuService extends IService<Menu> {
-    /**
-     * 查询用户权限集合字符串
-     * @param username 用户名
-     * @return 如果查询到返回权限集合字符串
-     */
-    String findUserPermissions(String username);
 
     /**
      * 获取用户路由树

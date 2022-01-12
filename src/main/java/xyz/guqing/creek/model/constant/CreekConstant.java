@@ -39,7 +39,7 @@ public interface CreekConstant {
     /**
      * 注册用户角色ID
      */
-    Long REGISTER_ROLE_ID = 1L;
+    String REGISTER_ROLE_ID = "1";
 
     String DEFAULT_PASSWORD = "123456";
 }

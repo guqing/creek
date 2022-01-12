@@ -1,4 +1,4 @@
-package xyz.guqing.creek.security.model;
+package xyz.guqing.creek.security;
 
 import lombok.Data;
 

@@ -27,7 +27,7 @@ public class Menu extends BaseEntity {
     private Long parentId;
 
     /**
-     * 菜单或按钮的标题
+     * 菜单的标题
      */
     private String title;
 
@@ -64,19 +64,7 @@ public class Menu extends BaseEntity {
     private Integer hidden;
 
     /**
-     * 权限标识
-     */
-    private String perms;
-
-    /**
-     * 类型 0菜单 1按钮
-     */
-    private String type;
-
-    /**
      * 排序
      */
     private Long sortIndex;
-
-
 }

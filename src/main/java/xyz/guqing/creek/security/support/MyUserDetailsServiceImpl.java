@@ -1,22 +1,21 @@
 package xyz.guqing.creek.security.support;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import xyz.guqing.creek.model.bo.CurrentUser;
-import xyz.guqing.creek.model.bo.MyUserDetails;
-import xyz.guqing.creek.service.MenuService;
+import xyz.guqing.creek.model.entity.ApiScope;
+import xyz.guqing.creek.service.RoleResourceService;
 import xyz.guqing.creek.service.UserService;
 import xyz.guqing.creek.utils.CreekUtils;
-
-import java.util.List;
 
 
 /**
@@ -26,32 +25,35 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MyUserDetailsServiceImpl implements UserDetailsService {
+
     private final UserService userService;
-    private final MenuService menuService;
+    private final RoleResourceService roleResourceService;
 
     @Override
-    public MyUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
         CurrentUser user = userService.loadUserByUsername(username);
         String password = user.getPassword();
 
-        String permissions = menuService.findUserPermissions(username);
+        List<Long> roleIds = CreekUtils.splitToLong(user.getRoleIds());
+        String scopes = roleResourceService.listScopesByIds(roleIds)
+            .stream()
+            .map(ApiScope::getName)
+            .collect(Collectors.joining(","));
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils.NO_AUTHORITIES;
-        if (StringUtils.isNotBlank(permissions)) {
-            grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(permissions);
+        if (StringUtils.isNotBlank(scopes)) {
+            grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(scopes);
         }
-        MyUserDetails myUserDetails = new MyUserDetails(
-                username,
-                password,
-                true,
-                true,
-                true,
-                true,
-                grantedAuthorities
+        User myUserDetails = new User(
+            username,
+            password,
+            true,
+            true,
+            true,
+            true,
+            grantedAuthorities
         );
 
         BeanUtils.copyProperties(user, myUserDetails);
-        myUserDetails.setRoleIds(CreekUtils.commaSeparatedToList(user.getRoleId()));
-        myUserDetails.setRoleNames(CreekUtils.commaSeparatedToList(user.getRoleName()));
 
         // 返回自定义的 MyUserDetails
         return myUserDetails;

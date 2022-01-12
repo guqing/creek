@@ -1,12 +1,14 @@
 package xyz.guqing.creek.model.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.Collection;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 用户角色关联表
+ * 角色资源表，存储角色关联的菜单和api资源
  * </p>
  *
  * @author guqing
@@ -14,18 +16,17 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName("user_role")
-public class UserRole {
+@TableName("role_resource")
+public class RoleResource {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 用户ID
-     */
-    private Long userId;
+    @TableId
+    private Long id;
 
-    /**
-     * 角色ID
-     */
     private Long roleId;
+
+    private String menus;
+
+    private String scopes;
 }

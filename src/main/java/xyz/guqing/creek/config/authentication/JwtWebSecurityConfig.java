@@ -1,8 +1,6 @@
 package xyz.guqing.creek.config.authentication;
 
-import com.auth0.spring.security.api.JwtAuthenticationProvider;
 import com.auth0.spring.security.api.JwtWebSecurityConfigurer;
-import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -14,9 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import xyz.guqing.creek.security.filter.JwtTokenFilter;
 import xyz.guqing.creek.security.handler.JwtLogoutSuccessHandler;
 import xyz.guqing.creek.security.properties.LoginProperties;
 import xyz.guqing.creek.security.properties.SecurityProperties;
@@ -90,7 +86,7 @@ public class JwtWebSecurityConfig extends WebSecurityConfigurerAdapter {
             ).permitAll()
 
             // 对登录登出注册要允许匿名访问
-            .antMatchers("/authorize/**", loginProperties.getLogoutUrl())
+            .antMatchers("/oauth/**", loginProperties.getLogoutUrl())
             .permitAll()
             .and()
             .logout().logoutUrl(loginProperties.getLogoutUrl())

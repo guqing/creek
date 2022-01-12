@@ -2,6 +2,11 @@ package xyz.guqing.creek.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -14,12 +19,8 @@ import xyz.guqing.creek.model.dto.MenuTree;
 import xyz.guqing.creek.model.entity.Menu;
 import xyz.guqing.creek.model.enums.MenuType;
 import xyz.guqing.creek.service.MenuService;
+import xyz.guqing.creek.service.RoleResourceService;
 import xyz.guqing.creek.utils.TreeUtil;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -30,21 +31,14 @@ import java.util.stream.Collectors;
  * @since 2020-05-21
  */
 @Service
+@AllArgsConstructor
 public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements MenuService {
-
-    @Override
-    public String findUserPermissions(String username) {
-        List<Menu> userPermissions = baseMapper.findUserPermissions(username);
-        return userPermissions.stream().map(Menu::getPerms).collect(Collectors.joining(","));
-    }
+    private final RoleResourceService roleResourceService;
 
     @Override
     public List<Menu> listUserMenus(String username) {
-        List<Menu> userMenus = this.baseMapper.findUserMenus(username);
-        if(CollectionUtils.isEmpty(userMenus)) {
-            return Collections.emptyList();
-        }
-        return userMenus;
+        Set<Long> menuIds = roleResourceService.listMenuIdsByUsername(username);
+        return listByIds(menuIds);
     }
 
     @Override
@@ -54,11 +48,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         List<Menu> menus = baseMapper.selectList(queryWrapper);
 
         List<MenuTree> menuTrees = convertTo(menus);
-        if (StringUtils.equals(menu.getType(), MenuType.BUTTON.getValue())) {
-           return menuTrees;
-        } else {
-            return TreeUtil.build(menuTrees);
-        }
+        return TreeUtil.build(menuTrees);
     }
 
     @Override
@@ -100,8 +90,6 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
             tree.setParentId(menu.getParentId().toString());
             tree.setTitle(menu.getTitle());
             tree.setIcon(menu.getIcon());
-            tree.setType(menu.getType());
-            tree.setPerms(menu.getPerms());
             menuTrees.add(tree);
         });
         return menuTrees;

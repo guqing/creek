@@ -14,12 +14,6 @@ import java.util.Set;
  * @date 2020-06-03
  */
 public interface RoleService extends IService<Role> {
-    /**
-     * 保存用户和角色关系
-     * @param userId 用户id
-     * @param roleIds 角色id集合
-     */
-    void saveUserRoles(Long userId, List<Long> roleIds);
 
     /**
      * 根据条件查询角色信息

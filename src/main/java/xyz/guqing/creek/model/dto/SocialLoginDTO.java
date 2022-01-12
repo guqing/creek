@@ -2,6 +2,7 @@ package xyz.guqing.creek.model.dto;
 
 import lombok.Data;
 import me.zhyd.oauth.model.AuthUser;
+import xyz.guqing.creek.security.AccessToken;
 
 /**
  * @author guqing
@@ -9,7 +10,8 @@ import me.zhyd.oauth.model.AuthUser;
  */
 @Data
 public class SocialLoginDTO {
-    private String accessToken;
+
+    private AccessToken accessToken;
     private AuthUser authUser;
     private Boolean isBind;
 }

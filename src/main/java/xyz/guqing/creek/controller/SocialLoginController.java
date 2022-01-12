@@ -16,7 +16,7 @@ import xyz.guqing.creek.model.dto.SocialLoginDTO;
 import xyz.guqing.creek.model.params.BindUserParam;
 import xyz.guqing.creek.model.params.SocialUserParam;
 import xyz.guqing.creek.model.support.ResultEntity;
-import xyz.guqing.creek.security.model.AccessToken;
+import xyz.guqing.creek.security.AccessToken;
 import xyz.guqing.creek.security.properties.LoginProperties;
 import xyz.guqing.creek.security.support.UserLoginService;
 import xyz.guqing.creek.utils.SecurityUserHelper;

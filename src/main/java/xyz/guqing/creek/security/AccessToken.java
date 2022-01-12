@@ -1,4 +1,4 @@
-package xyz.guqing.creek.security.model;
+package xyz.guqing.creek.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

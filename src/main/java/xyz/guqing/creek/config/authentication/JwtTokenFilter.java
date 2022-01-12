@@ -1,6 +1,6 @@
-package xyz.guqing.creek.security.filter;
+package xyz.guqing.creek.config.authentication;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.spring.security.api.authentication.PreAuthenticatedAuthenticationJsonWebToken;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -9,15 +9,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import xyz.guqing.creek.config.authentication.JwtTokenProvider;
-import xyz.guqing.creek.model.bo.MyUserDetails;
 import xyz.guqing.creek.security.properties.SecurityProperties;
 import xyz.guqing.creek.security.support.MyUserDetailsServiceImpl;
-
 
 /**
  * @author guqing
@@ -28,8 +25,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtTokenProvider tokenProvider;
-    @Autowired
-    private MyUserDetailsServiceImpl myUserDetailsService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -39,19 +34,20 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         if (token != null) {
             // 从header的值中解析token
-            DecodedJWT decodedJWT = tokenProvider.verifyToken(token);
+            Authentication authentication =
+                PreAuthenticatedAuthenticationJsonWebToken.usingToken(token)
+                    .verify(tokenProvider.getJwtVerifier());
+//            if (decodedJWT != null) {
+//                UserDetails userDetails =
+//                    this.myUserDetailsService.loadUserByUsername(decodedJWT.getSubject());
 
-            if (decodedJWT != null) {
-                MyUserDetails userDetails =
-                    this.myUserDetailsService.loadUserByUsername(decodedJWT.getIssuer());
-
-                UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
-                    request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+//                UsernamePasswordAuthenticationToken authentication =
+//                    new UsernamePasswordAuthenticationToken(
+//                        userDetails, null, userDetails.getAuthorities());
+//                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
+//                    request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            }
         }
         chain.doFilter(request, response);
     }

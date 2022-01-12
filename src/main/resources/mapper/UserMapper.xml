@@ -16,16 +16,11 @@
                u.modify_time             modifyTime,
                u.description,
                u.avatar,
-               d.group_name,
-               GROUP_CONCAT(r.id)        roleId,
-               GROUP_CONCAT(r.ROLE_NAME) roleName
+               u.role_ids,
+               d.group_name
         FROM user u
-                 LEFT JOIN user_group d ON (u.group_id = d.id)
-                 LEFT JOIN user_role ur ON (u.id = ur.user_id)
-                 LEFT JOIN role r ON r.id = ur.role_id
-        WHERE u.username = #{username}
-        group by u.username, u.id, u.email, u.mobile, u.password, u.status, u.create_time, u.gender, u.group_id
-               , u.last_login_time, u.modify_time, u.description, u.avatar
+                 LEFT JOIN user_group d ON u.group_id = d.id
+        WHERE u.username = #{username} and deleted = 0
     </select>
 
     <select id="findUserBy"
@@ -46,14 +41,11 @@
         u.modify_time modifyTime,
         u.description,
         u.avatar,
+        u.role_ids,
         g.group_name groupName,
-        GROUP_CONCAT(r.id) roleId,
-        GROUP_CONCAT(r.role_name) roleName
         FROM
         `user` u
-        LEFT JOIN user_group g ON (u.group_id = g.id)
-        LEFT JOIN user_role ur ON (u.id = ur.user_id)
-        LEFT JOIN role r ON (r.id = ur.role_id)
+        LEFT JOIN user_group g ON u.group_id = g.id
         WHERE
         u.deleted=0
         <if test="userQuery.username != null and userQuery.username != ''">
@@ -80,9 +72,6 @@
         <if test="userQuery.createTimeTo!= null">
             And u.create_time &lt; #{userQuery.createTimeTo}
         </if>
-        group by u.username,u.id,u.email,u.mobile,u.status,u.create_time,u.gender,
-        u.group_id,u.last_login_time,u.modify_time,u.description,
-        u.avatar
         order by u.create_time desc
     </select>
 </mapper>

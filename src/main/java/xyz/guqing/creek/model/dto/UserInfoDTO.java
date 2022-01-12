@@ -1,5 +1,6 @@
 package xyz.guqing.creek.model.dto;
 
+import java.util.Set;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -27,11 +28,11 @@ public class UserInfoDTO {
 
     private String groupName;
 
-    private List<String> roleIds;
+    private List<Long> roleIds;
 
     private List<String> roleNames;
 
-    private List<String> permissions;
+    private Set<String> scopes;
     /**
      * 邮箱
      */
@@ -42,20 +43,7 @@ public class UserInfoDTO {
      */
     private String mobile;
 
-    /**
-     * 性别 0男 1女 2保密
-     */
-    private Integer gender;
-
-    /**
-     * 是否开启tab，0关闭 1开启
-     */
-    private Integer isTab;
-
-    /**
-     * 主题
-     */
-    private String theme;
+    private String gender;
 
     /**
      * 头像

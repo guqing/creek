@@ -3,10 +3,9 @@ package xyz.guqing.creek.security.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import xyz.guqing.creek.security.model.AccessToken;
+import xyz.guqing.creek.security.AccessToken;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 /**

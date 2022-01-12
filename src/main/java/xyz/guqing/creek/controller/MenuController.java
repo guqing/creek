@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @date 2020-05-29
  */
 @RestController
-@RequestMapping("/menu")
+@RequestMapping("/menus")
 public class MenuController {
     private final MenuService menuService;
 
@@ -33,7 +33,7 @@ public class MenuController {
     }
 
     @GetMapping("/tree")
-    @PreAuthorize("hasAuthority('menu:view')")
+    @PreAuthorize("hasAuthority('read:menu')")
     public ResultEntity<List<VueRouter<Menu>>> getMenu() {
         String username = SecurityUserHelper.getCurrentUsername();
         List<VueRouter<Menu>> userRouters = menuService.listUserRouters(username);
@@ -41,7 +41,7 @@ public class MenuController {
     }
 
     @GetMapping("router")
-    @PreAuthorize("hasAuthority('menu:view')")
+    @PreAuthorize("hasAuthority('read:menu')")
     public ResultEntity<List<MenuDTO>> getRouterList() {
         String username = SecurityUserHelper.getCurrentUsername();
         List<Menu> menus = menuService.listUserMenus(username);
@@ -49,13 +49,13 @@ public class MenuController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('menu:view')")
+    @PreAuthorize("hasAuthority('read:menu')")
     public ResultEntity<Menu> getById(@PathVariable Long id) {
         return ResultEntity.ok(menuService.getById(id));
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('menu:view')")
+    @PreAuthorize("hasAuthority('read:menu')")
     public ResultEntity<List<MenuTree>> listMenuTree(MenuQuery menuQuery) {
         Menu menu = menuQuery.convertTo();
         List<MenuTree> menuTrees = this.menuService.listTreeMenus(menu);
@@ -63,7 +63,7 @@ public class MenuController {
     }
 
     @PostMapping("/save")
-    @PreAuthorize("hasAuthority('menu:save')")
+    @PreAuthorize("hasAuthority('write:menu')")
     @ControllerEndpoint(operation = "保存菜单/按钮", exceptionMessage = "保存菜单/按钮失败")
     public ResultEntity<String> createOrUpdate(@RequestBody @Valid MenuParam menuParam) {
         Menu menu = menuParam.convertTo();
@@ -72,7 +72,7 @@ public class MenuController {
     }
 
     @DeleteMapping
-    @PreAuthorize("hasAuthority('menu:delete')")
+    @PreAuthorize("hasAuthority('delete:menu')")
     @ControllerEndpoint(operation = "删除菜单/按钮", exceptionMessage = "删除菜单/按钮失败")
     public ResultEntity<String> deleteMenus(@RequestBody List<Long> menuIds) {
         menuService.deleteMenus(menuIds);
