@@ -39,7 +39,6 @@ import xyz.guqing.creek.model.params.UserParam;
 import xyz.guqing.creek.model.params.UserQuery;
 import xyz.guqing.creek.model.support.PageInfo;
 import xyz.guqing.creek.model.support.PageQuery;
-import xyz.guqing.creek.service.MenuService;
 import xyz.guqing.creek.service.RoleService;
 import xyz.guqing.creek.service.UserService;
 import xyz.guqing.creek.utils.CreekUtils;
@@ -59,7 +58,6 @@ import xyz.guqing.creek.utils.ServiceUtils;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final RoleService roleService;
-    private final MenuService menuService;
     private final PasswordEncoder passwordEncoder;
     private final UserGroupMapper userGroupMapper;
 

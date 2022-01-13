@@ -26,7 +26,5 @@ public class RoleResource {
 
     private Long roleId;
 
-    private String menus;
-
-    private String scopes;
+    private String scope;
 }

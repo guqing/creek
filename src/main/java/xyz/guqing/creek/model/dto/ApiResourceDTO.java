@@ -14,5 +14,6 @@ public class ApiResourceDTO implements OutputConverter<ApiResourceDTO, ApiResour
 
     String name;
     String displayName;
-    List<ApiScopeDTO> apiScopes;
+    String description;
+    List<ApiScopeDTO> scopes;
 }

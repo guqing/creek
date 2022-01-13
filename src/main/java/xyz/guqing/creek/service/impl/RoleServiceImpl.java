@@ -27,7 +27,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
-    private final RoleResourceService roleMenuService;
+    private final RoleResourceService roleResourceService;
 
     @Override
     public Page<Role> listBy(RoleQuery roleQuery) {
@@ -51,10 +51,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     }
 
     @Override
-    public void createOrUpdate(Role role, Set<Long> menuIds) {
+    public void createOrUpdate(Role role, Set<String> authorities) {
         saveOrUpdate(role);
-        // 创建角色和菜单关联关系
-        roleMenuService.createOrUpdate(role.getId(), menuIds);
+        // 创建角色和权限关联关系
+        roleResourceService.createOrUpdate(role.getId(), authorities);
     }
 
     @Override
@@ -72,7 +72,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     public void deleteRoles(List<Long> roleIds) {
         removeByIds(roleIds);
 
-        roleMenuService.deleteByRoleIds(roleIds);
-        roleMenuService.deleteByRoleIds(roleIds);
+        roleResourceService.deleteByRoleIds(roleIds);
     }
 }

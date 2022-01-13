@@ -24,5 +24,5 @@ public class RoleParam implements InputConverter<Role> {
 
     private String remark;
 
-    private Set<Long> menuIds;
+    private Set<String> authorities;
 }

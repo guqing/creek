@@ -31,7 +31,7 @@ justauth:
       client-secret:
       redirect-uri:
 auth0:
-  issuer: https://your-domain.eu.auth0.com/
+  issuer: creek
   apiAudience: http://your-audience
 logging:
   level:

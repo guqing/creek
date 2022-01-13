@@ -16,7 +16,7 @@ public class TokenProperties {
     /**
      * 30分钟(以分钟计)
      */
-    private int expireAt = 1;
+    private int expireAt = 30;
     /**
      * 允许过期时间时钟偏移分钟为单位
      */

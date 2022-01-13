@@ -25,9 +25,9 @@ public interface RoleService extends IService<Role> {
     /**
      * 创建或更新角色和角色关联的菜单信息
      * @param role 角色信息
-     * @param menuIds 角色关联的菜单集合
+     * @param authorities api scope names
      */
-    void createOrUpdate(Role role, Set<Long> menuIds);
+    void createOrUpdate(Role role, Set<String> authorities);
 
     /**
      * 根据角色id查询角色详情
