@@ -1,7 +1,9 @@
 package xyz.guqing.creek.model.dto;
 
+import java.util.Set;
 import lombok.Data;
 import xyz.guqing.creek.model.dos.UserDO;
+import xyz.guqing.creek.model.entity.Role;
 import xyz.guqing.creek.model.support.OutputConverter;
 
 import java.time.LocalDateTime;
@@ -27,9 +29,7 @@ public class UserDTO implements OutputConverter<UserDTO, UserDO> {
 
     private String groupName;
 
-    private List<String> roleIds;
-
-    private List<String> roleNames;
+    private Set<SimpleRoleDTO> roles;
 
     private String avatar;
 
@@ -40,4 +40,5 @@ public class UserDTO implements OutputConverter<UserDTO, UserDO> {
     private Integer status;
 
     private LocalDateTime createTime;
+
 }

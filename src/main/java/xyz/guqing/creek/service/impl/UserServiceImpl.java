@@ -29,6 +29,7 @@ import xyz.guqing.creek.mapper.UserMapper;
 import xyz.guqing.creek.model.bo.CurrentUser;
 import xyz.guqing.creek.model.constant.CreekConstant;
 import xyz.guqing.creek.model.dos.UserDO;
+import xyz.guqing.creek.model.dto.SimpleRoleDTO;
 import xyz.guqing.creek.model.dto.UserDTO;
 import xyz.guqing.creek.model.dto.UserInfoDTO;
 import xyz.guqing.creek.model.entity.Role;
@@ -69,11 +70,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         List<UserDTO> userDtoList = ServiceUtils.convertToList(userPage.getRecords(), user -> {
             UserDTO userDTO = new UserDTO().convertFrom(user);
             List<String> roleIds = CreekUtils.commaSeparatedToList(user.getRoleIds());
-            userDTO.setRoleIds(roleIds);
-            List<String> roleNames = roleService.listByIds(roleIds).stream()
-                .map(Role::getRoleName)
-                .collect(Collectors.toList());
-            userDTO.setRoleNames(roleNames);
+            Set<SimpleRoleDTO> roles = roleService.listByIds(roleIds)
+                .stream()
+                .map(role -> (SimpleRoleDTO) new SimpleRoleDTO().convertFrom(role))
+                .collect(Collectors.toSet());
+            userDTO.setRoles(roles);
             return userDTO;
         });
         return PageInfo.convertFrom(userPage, userDtoList);
