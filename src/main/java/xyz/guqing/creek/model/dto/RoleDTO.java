@@ -16,6 +16,7 @@ public class RoleDTO implements OutputConverter<RoleDTO, Role> {
     private Long id;
     private String roleName;
     private String remark;
+    private Boolean isInternal;
     private Set<String> authorities;
     private LocalDateTime createTime;
 }

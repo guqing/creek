@@ -70,12 +70,10 @@ public class RoleResourceServiceImpl implements RoleResourceService {
 
 
     @Override
-    public void deleteByRoleIds(List<Long> roleIds) {
-        if (CollectionUtils.isEmpty(roleIds)) {
-            return;
-        }
+    public void deleteByRoleId(Long roleId) {
+        Assert.notNull(roleId, "The roleId must not be null.");
         LambdaQueryWrapper<RoleResource> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(RoleResource::getRoleId, roleIds);
+        queryWrapper.eq(RoleResource::getRoleId, roleId);
         roleResourceMapper.delete(queryWrapper);
     }
 

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.jsonwebtoken.lang.Assert;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -68,11 +69,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         return roleDTO;
     }
 
-    @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteRoles(List<Long> roleIds) {
-        removeByIds(roleIds);
-
-        roleResourceService.deleteByRoleIds(roleIds);
+    public void deleteById(Long id) {
+        roleResourceService.deleteByRoleId(id);
+        super.removeById(id);
     }
 }

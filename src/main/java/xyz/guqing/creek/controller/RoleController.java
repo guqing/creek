@@ -64,11 +64,11 @@ public class RoleController {
         return ResultEntity.ok();
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('delete:role')")
     @ControllerEndpoint(operation = "删除角色", exceptionMessage = "删除角色失败")
-    public ResultEntity<String> deleteRoles(@RequestBody List<Long> roleIds) {
-        roleService.deleteRoles(roleIds);
+    public ResultEntity<String> deleteRoles(@PathVariable Long id) {
+        roleService.deleteById(id);
         return ResultEntity.ok();
     }
 

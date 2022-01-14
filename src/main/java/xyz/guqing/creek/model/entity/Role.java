@@ -32,6 +32,11 @@ public class Role extends BaseEntity {
      */
     private String remark;
 
+    /**
+     * 是否为系统内置
+     */
+    private Boolean isInternal;
+
     @TableLogic
     private Integer deleted;
 }

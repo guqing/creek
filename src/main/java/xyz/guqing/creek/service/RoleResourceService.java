@@ -22,10 +22,11 @@ public interface RoleResourceService {
     List<ApiResourceDTO> getResourceByRoleId(Long roleId);
 
     /**
-     * 根据角色id集合批量删除关联关系
-     * @param roleIds 菜单id集合
+     * 根据角色id删除角色资源关联
+     *
+     * @param roleId 菜单id集合
      */
-    void deleteByRoleIds(List<Long> roleIds);
+    void deleteByRoleId(Long roleId);
 
     /**
      * 根据角色id查询角色包含的api scope集合
