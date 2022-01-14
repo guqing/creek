@@ -83,6 +83,11 @@ public class User extends BaseEntity {
     private Integer status;
 
     /**
+     * 是否为系统内置
+     */
+    private Boolean isInternal;
+
+    /**
      * 删除状态：0未删除，1已删除
      */
     @TableLogic

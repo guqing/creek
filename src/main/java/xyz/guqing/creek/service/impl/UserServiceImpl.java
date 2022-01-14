@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.guqing.creek.exception.BadArgumentException;
+import xyz.guqing.creek.exception.ForbiddenException;
 import xyz.guqing.creek.exception.NotFoundException;
 import xyz.guqing.creek.mapper.UserGroupMapper;
 import xyz.guqing.creek.mapper.UserMapper;
@@ -220,6 +221,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new NotFoundException("用户不存在");
         }
+        if (Objects.equals(user.getIsInternal(), true)) {
+            throw new ForbiddenException("系统内置用户不允许操作");
+        }
         user.setStatus(status.getValue());
         updateById(user);
     }
@@ -228,7 +232,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public void removeByUserNames(List<String> usernames) {
         LambdaQueryWrapper<User> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.in(User::getUsername, usernames);
+        queryWrapper.in(User::getUsername, usernames)
+            .eq(User::getIsInternal, false);
         remove(queryWrapper);
     }
 

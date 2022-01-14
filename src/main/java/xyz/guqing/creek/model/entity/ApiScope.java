@@ -17,4 +17,5 @@ public class ApiScope extends BaseEntity {
     private String displayName;
     private String description;
     private Long resourceId;
+    private Long sortIndex;
 }

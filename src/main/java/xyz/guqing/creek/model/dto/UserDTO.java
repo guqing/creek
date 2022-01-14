@@ -35,6 +35,8 @@ public class UserDTO implements OutputConverter<UserDTO, UserDO> {
 
     private String description;
 
+    private Boolean isInternal;
+
     private Integer status;
 
     private LocalDateTime createTime;

@@ -27,7 +27,9 @@ public class ApiResourceServiceImpl extends ServiceImpl<ApiResourceMapper, ApiRe
 
     @Override
     public List<ApiResourceDTO> listWithScopes() {
-        return list().stream().map(apiResource -> {
+        return list(Wrappers.lambdaQuery(ApiResource.class)
+            .orderByAsc(ApiResource::getSortIndex))
+            .stream().map(apiResource -> {
                 ApiResourceDTO resourceDTO = new ApiResourceDTO().convertFrom(apiResource);
                 List<ApiScopeDTO> scopes = listScopesByResourceId(apiResource.getId());
                 resourceDTO.setScopes(scopes);
@@ -38,7 +40,8 @@ public class ApiResourceServiceImpl extends ServiceImpl<ApiResourceMapper, ApiRe
 
     private List<ApiScopeDTO> listScopesByResourceId(Long resourceId) {
         return apiScopeMapper.selectList(Wrappers.lambdaQuery(ApiScope.class)
-                .eq(ApiScope::getResourceId, resourceId)).stream()
+                .eq(ApiScope::getResourceId, resourceId)
+                .orderByAsc(ApiScope::getSortIndex)).stream()
             .map(scope -> (ApiScopeDTO) new ApiScopeDTO().convertFrom(scope))
             .collect(Collectors.toList());
     }

@@ -13,7 +13,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ApiResource extends BaseEntity {
 
-    String name;
-    String displayName;
-    String description;
+    private String name;
+    private String displayName;
+    private String description;
+    private Long sortIndex;
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.jsonwebtoken.lang.Assert;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ import xyz.guqing.creek.mapper.UserMapper;
 import xyz.guqing.creek.model.bo.CurrentUser;
 import xyz.guqing.creek.model.dto.ApiResourceDTO;
 import xyz.guqing.creek.model.dto.ApiScopeDTO;
+import xyz.guqing.creek.model.entity.ApiResource;
 import xyz.guqing.creek.model.entity.ApiScope;
 import xyz.guqing.creek.model.entity.RoleResource;
 import xyz.guqing.creek.service.ApiResourceService;
@@ -53,12 +55,14 @@ public class RoleResourceServiceImpl implements RoleResourceService {
             ServiceUtils.convertToListMap(resourceIds, apiScopes, ApiScope::getResourceId);
         return apiResourceService.listByIds(resourceIds)
             .stream()
+            .sorted(Comparator.comparing(ApiResource::getSortIndex))
             .map(resource -> {
                 ApiResourceDTO resourceDTO = new ApiResourceDTO().convertFrom(resource);
 
                 List<ApiScope> scopes = resourceIdScopesMap.get(resource.getId());
                 if (scopes != null) {
                     List<ApiScopeDTO> scopeDtoList = scopes.stream()
+                        .sorted(Comparator.comparing(ApiScope::getSortIndex))
                         .map(scope -> (ApiScopeDTO) new ApiScopeDTO().convertFrom(scope))
                         .collect(Collectors.toList());
                     resourceDTO.setScopes(scopeDtoList);
@@ -109,7 +113,8 @@ public class RoleResourceServiceImpl implements RoleResourceService {
             return Collections.emptyList();
         }
         return apiScopeMapper.selectList(Wrappers.lambdaQuery(ApiScope.class)
-            .in(ApiScope::getName, scopeNames));
+            .in(ApiScope::getName, scopeNames)
+            .orderByAsc(ApiScope::getSortIndex));
     }
 
     private List<Long> listRoleIdsByUsername(String username) {

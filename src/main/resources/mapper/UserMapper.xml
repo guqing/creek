@@ -16,6 +16,7 @@
                u.modify_time             modifyTime,
                u.description,
                u.avatar,
+               u.is_internal,
                u.role_ids,
                d.group_name
         FROM user u
@@ -41,6 +42,7 @@
         u.modify_time modifyTime,
         u.description,
         u.avatar,
+        u.is_internal,
         u.role_ids,
         g.group_name groupName,
         FROM
