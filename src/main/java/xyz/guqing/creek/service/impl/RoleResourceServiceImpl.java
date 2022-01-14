@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.jsonwebtoken.lang.Assert;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -15,10 +16,14 @@ import xyz.guqing.creek.mapper.ApiScopeMapper;
 import xyz.guqing.creek.mapper.RoleResourceMapper;
 import xyz.guqing.creek.mapper.UserMapper;
 import xyz.guqing.creek.model.bo.CurrentUser;
+import xyz.guqing.creek.model.dto.ApiResourceDTO;
+import xyz.guqing.creek.model.dto.ApiScopeDTO;
 import xyz.guqing.creek.model.entity.ApiScope;
 import xyz.guqing.creek.model.entity.RoleResource;
+import xyz.guqing.creek.service.ApiResourceService;
 import xyz.guqing.creek.service.RoleResourceService;
 import xyz.guqing.creek.utils.CreekUtils;
+import xyz.guqing.creek.utils.ServiceUtils;
 
 /**
  * @author guqing
@@ -30,6 +35,7 @@ public class RoleResourceServiceImpl implements RoleResourceService {
     private final ApiScopeMapper apiScopeMapper;
     private final RoleResourceMapper roleResourceMapper;
     private final UserMapper userMapper;
+    private final ApiResourceService apiResourceService;
 
     @Override
     public List<RoleResource> listByRoleId(Long roleId) {
@@ -37,6 +43,31 @@ public class RoleResourceServiceImpl implements RoleResourceService {
         queryWrapper.eq(RoleResource::getRoleId, roleId);
         return roleResourceMapper.selectList(queryWrapper);
     }
+
+    @Override
+    public List<ApiResourceDTO> getResourceByRoleId(Long roleId) {
+        Assert.notNull(roleId, "The roleId must not be null.");
+        List<ApiScope> apiScopes = listScopesByRoleIds(List.of(roleId));
+        Set<Long> resourceIds = ServiceUtils.fetchProperty(apiScopes, ApiScope::getResourceId);
+        Map<Long, List<ApiScope>> resourceIdScopesMap =
+            ServiceUtils.convertToListMap(resourceIds, apiScopes, ApiScope::getResourceId);
+        return apiResourceService.listByIds(resourceIds)
+            .stream()
+            .map(resource -> {
+                ApiResourceDTO resourceDTO = new ApiResourceDTO().convertFrom(resource);
+
+                List<ApiScope> scopes = resourceIdScopesMap.get(resource.getId());
+                if (scopes != null) {
+                    List<ApiScopeDTO> scopeDtoList = scopes.stream()
+                        .map(scope -> (ApiScopeDTO) new ApiScopeDTO().convertFrom(scope))
+                        .collect(Collectors.toList());
+                    resourceDTO.setScopes(scopeDtoList);
+                }
+                return resourceDTO;
+            })
+            .collect(Collectors.toList());
+    }
+
 
     @Override
     public void deleteByRoleIds(List<Long> roleIds) {

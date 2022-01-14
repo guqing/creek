@@ -4,21 +4,19 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import io.jsonwebtoken.lang.Assert;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.guqing.creek.mapper.RoleMapper;
-import xyz.guqing.creek.model.dos.RoleDO;
 import xyz.guqing.creek.model.dto.RoleDTO;
 import xyz.guqing.creek.model.entity.Role;
 import xyz.guqing.creek.model.params.RoleQuery;
 import xyz.guqing.creek.model.support.PageQuery;
 import xyz.guqing.creek.service.RoleResourceService;
 import xyz.guqing.creek.service.RoleService;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author guqing
@@ -59,12 +57,15 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
     @Override
     public RoleDTO getRoleById(Long roleId) {
-        Optional<RoleDO> optionalRoleDO = this.baseMapper.findById(roleId);
-        if(optionalRoleDO.isPresent()) {
-            RoleDO roleDO = optionalRoleDO.get();
-            return new RoleDTO().convertFrom(roleDO);
+        Assert.notNull(roleId, "The roleId must not be null.");
+        Role role = getById(roleId);
+        if (role == null) {
+            return null;
         }
-        return null;
+        RoleDTO roleDTO = new RoleDTO().convertFrom(role);
+        Set<String> authorities = roleResourceService.listScopeNameByRoleIds(List.of(roleId));
+        roleDTO.setAuthorities(authorities);
+        return roleDTO;
     }
 
     @Override

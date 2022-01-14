@@ -1,6 +1,7 @@
 package xyz.guqing.creek.model.params;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import xyz.guqing.creek.model.entity.Role;
 import xyz.guqing.creek.model.support.InputConverter;
@@ -24,5 +25,6 @@ public class RoleParam implements InputConverter<Role> {
 
     private String remark;
 
+    @NotNull
     private Set<String> authorities;
 }

@@ -1,6 +1,7 @@
 package xyz.guqing.creek.service;
 
 import java.util.Set;
+import xyz.guqing.creek.model.dto.ApiResourceDTO;
 import xyz.guqing.creek.model.entity.ApiScope;
 import xyz.guqing.creek.model.entity.RoleResource;
 
@@ -17,6 +18,8 @@ public interface RoleResourceService {
      * @return 查询到返回集合信息否则返回空集合
      */
     List<RoleResource> listByRoleId(Long roleId);
+
+    List<ApiResourceDTO> getResourceByRoleId(Long roleId);
 
     /**
      * 根据角色id集合批量删除关联关系
