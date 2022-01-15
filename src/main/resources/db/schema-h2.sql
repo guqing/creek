@@ -52,7 +52,7 @@ create table ROLE
         primary key,
     ROLE_NAME   VARCHAR(10)   not null,
     REMARK      VARCHAR(100),
-    IS_DEFAULT  INT default 0 not null,
+    IS_INTERNAL INT default 0 not null,
     DELETED     INT default 0,
     CREATE_TIME DATETIME      not null,
     MODIFY_TIME DATETIME
@@ -64,7 +64,7 @@ comment on column ROLE.ROLE_NAME is '角色名称';
 
 comment on column ROLE.REMARK is '角色描述';
 
-comment on column ROLE.IS_DEFAULT is '是否是默认角色';
+comment on column ROLE.IS_INTERNAL is '是否系统内置角色';
 
 comment on column ROLE.DELETED is '删除状态';
 
@@ -175,7 +175,7 @@ create table USER
     MOBILE          VARCHAR(20)
         constraint RMS_USER_MOBILE
             unique,
-    GENDER          INT,
+    GENDER          VARCHAR(50),
     AVATAR          VARCHAR(100),
     DESCRIPTION     VARCHAR(150),
     LAST_LOGIN_TIME DATETIME,
@@ -183,7 +183,8 @@ create table USER
     DELETED         INT          default 0,
     CREATE_TIME     DATETIME     not null,
     MODIFY_TIME     DATETIME,
-    ROLE_IDS        TEXT         not null
+    ROLE_IDS        TEXT         not null,
+    IS_INTERNAL     INT          default 0
 );
 
 comment on column USER.ID is '用户ID';
@@ -200,8 +201,6 @@ comment on column USER.EMAIL is '邮箱';
 
 comment on column USER.MOBILE is '联系电话';
 
-comment on column USER.GENDER is '性别 0男 1女 2保密';
-
 comment on column USER.AVATAR is '头像';
 
 comment on column USER.DESCRIPTION is '描述';
@@ -215,6 +214,8 @@ comment on column USER.DELETED is '删除状态，0正常，1已删除';
 comment on column USER.CREATE_TIME is '创建时间';
 
 comment on column USER.MODIFY_TIME is '修改时间';
+
+comment on column USER.IS_INTERNAL is '是否系统内置';
 
 create index USER_USERNAME
     on USER (USERNAME);
@@ -282,7 +283,17 @@ create table API_RESOURCE
     DESCRIPTION  VARCHAR(500),
     CREATE_TIME  DATETIME,
     MODIFY_TIME  DATETIME,
+    SORT_INDEX   BIGINT default 0,
     constraint API_RESOURCE_PK
+        primary key (ID)
+);
+
+create table ROLE_RESOURCE
+(
+    ID      BIGINT auto_increment,
+    SCOPE   VARCHAR(100) not null,
+    ROLE_ID BIGINT       not null,
+    constraint MENU_RESOURCE_PK
         primary key (ID)
 );
 
@@ -295,19 +306,23 @@ create table API_SCOPE
     RESOURCE_ID  BIGINT       not null,
     CREATE_TIME  DATETIME,
     MODIFY_TIME  DATETIME,
+    SORT_INDEX   BIGINT default 0,
     constraint API_SCOPE_PK
         primary key (ID)
 );
 
 comment on column API_SCOPE.RESOURCE_ID is 'api resource id';
 
-create table ROLE_RESOURCE
+create table CREDENTIALS
 (
-    ID      BIGINT auto_increment,
-    MENUS   TEXT   not null,
-    SCOPES  TEXT   not null,
-    ROLE_ID BIGINT not null,
-    constraint MENU_RESOURCE_PK
+    ID          BIGINT auto_increment,
+    TOKEN       VARCHAR(500) not null,
+    CREATE_TIME DATETIME,
+    MODIFY_TIME DATETIME,
+    REMARK      VARCHAR(255),
+    constraint CREDENTIALS_PK
         primary key (ID)
 );
+
+comment on column CREDENTIALS.REMARK is '备注';
 
