@@ -315,14 +315,17 @@ comment on column API_SCOPE.RESOURCE_ID is 'api resource id';
 
 create table CREDENTIALS
 (
-    ID          BIGINT auto_increment,
+    ID          VARCHAR(36)  not null,
     TOKEN       VARCHAR(500) not null,
     CREATE_TIME DATETIME,
     MODIFY_TIME DATETIME,
     REMARK      VARCHAR(255),
+    EXPIRED_AT  DATETIME,
     constraint CREDENTIALS_PK
         primary key (ID)
 );
 
 comment on column CREDENTIALS.REMARK is '备注';
+
+
 
