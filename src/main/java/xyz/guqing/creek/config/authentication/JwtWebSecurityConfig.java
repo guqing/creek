@@ -84,10 +84,11 @@ public class JwtWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/*.jpg",
                 "/*.png"
             ).permitAll()
-
+            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             // 对登录登出注册要允许匿名访问
             .antMatchers("/oauth/**", loginProperties.getLogoutUrl())
             .permitAll()
+            .antMatchers("/**").authenticated()
             .and()
             .logout().logoutUrl(loginProperties.getLogoutUrl())
             .logoutSuccessHandler(jwtLogoutSuccessHandler)
