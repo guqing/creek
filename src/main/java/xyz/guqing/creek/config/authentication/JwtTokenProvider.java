@@ -1,16 +1,12 @@
 package xyz.guqing.creek.config.authentication;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.core.Authentication;
@@ -32,7 +28,6 @@ import xyz.guqing.creek.security.properties.TokenProperties;
 public class JwtTokenProvider implements Serializable {
 
     private static final long serialVersionUID = -5625635588908941275L;
-    private static final Algorithm algorithm = Algorithm.HMAC256("secret");
     private final TokenProperties tokenProperties;
 
     @Value(value = "${auth0.apiAudience}")
@@ -59,28 +54,7 @@ public class JwtTokenProvider implements Serializable {
             .withIssuedAt(new Date())
             // 过期
             .withExpiresAt(expireAt)
-            .sign(algorithm);
-    }
-
-    public DecodedJWT verifyToken(String token) {
-        if (StringUtils.isBlank(token)) {
-            return null;
-        }
-        try {
-            JWTVerifier verifier = getJwtVerifier();
-            return verifier.verify(token);
-        } catch (JWTVerificationException exception) {
-            //Invalid signature/claims
-            return null;
-        }
-    }
-
-    public JWTVerifier getJwtVerifier() {
-        return JWT.require(algorithm)
-            .withAudience(audience)
-            .withIssuer(issuer)
-            .acceptLeeway(1)
-            .build(); //Reusable verifier instance
+            .sign(JwtWebSecurityConfig.algorithm);
     }
 
     public AccessToken getToken(Authentication authentication) {
@@ -98,14 +72,5 @@ public class JwtTokenProvider implements Serializable {
         accessToken.setExpiration(cal.getTimeInMillis());
         accessToken.setTokenType(tokenProperties.getTokenPrefix().toLowerCase());
         return accessToken;
-    }
-
-    public AccessToken refreshToken(String token) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        DecodedJWT decodedJWT = verifyToken(token);
-        if (decodedJWT == null) {
-            throw new AuthenticationException("登录已过期");
-        }
-        return getToken(authentication);
     }
 }
