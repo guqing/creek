@@ -2,7 +2,6 @@ package xyz.guqing.creek.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import io.jsonwebtoken.lang.Assert;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import xyz.guqing.creek.exception.NotFoundException;
 import xyz.guqing.creek.mapper.ApiScopeMapper;

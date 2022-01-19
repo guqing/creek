@@ -1,5 +1,8 @@
 package xyz.guqing.creek.config.authentication;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.spring.security.api.JwtWebSecurityConfigurer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -13,10 +16,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import xyz.guqing.creek.security.JwtAuthenticationProvider;
+import xyz.guqing.creek.security.handler.JwtAuthenticationFailureHandler;
 import xyz.guqing.creek.security.handler.JwtLogoutSuccessHandler;
 import xyz.guqing.creek.security.properties.LoginProperties;
 import xyz.guqing.creek.security.properties.SecurityProperties;
 import xyz.guqing.creek.security.support.MyUserDetailsServiceImpl;
+import xyz.guqing.creek.security.token.BearerTokenAuthenticationEntryPoint;
+import xyz.guqing.creek.security.token.BearerTokenAuthenticationFilter;
 
 /**
  * @author guqing
@@ -26,6 +33,8 @@ import xyz.guqing.creek.security.support.MyUserDetailsServiceImpl;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableConfigurationProperties({SecurityProperties.class})
 public class JwtWebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    public static final Algorithm algorithm = Algorithm.HMAC256("secret-123");
 
     private final JwtLogoutSuccessHandler jwtLogoutSuccessHandler;
     private final MyUserDetailsServiceImpl userDetailsService;
@@ -52,8 +61,25 @@ public class JwtWebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public JwtTokenFilter jwtTokenFilter() {
-        return new JwtTokenFilter();
+    public JWTVerifier jwtVerifier() {
+        return JWT.require(algorithm)
+            .withAudience(audience)
+            .withIssuer(issuer)
+            .build();
+    }
+
+    @Bean
+    public JwtAuthenticationFailureHandler jwtAuthenticationFailureHandler() {
+        return new JwtAuthenticationFailureHandler();
+    }
+
+    @Bean
+    public BearerTokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
+        BearerTokenAuthenticationFilter filter =
+            new BearerTokenAuthenticationFilter(authenticationManagerBean());
+        filter.setAuthenticationEntryPoint(new BearerTokenAuthenticationEntryPoint());
+        filter.setAuthenticationFailureHandler(jwtAuthenticationFailureHandler());
+        return filter;
     }
 
     @Override
@@ -61,10 +87,16 @@ public class JwtWebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    @Bean
+    public JwtAuthenticationProvider jwtAuthenticationProvider() {
+        return new JwtAuthenticationProvider(jwtVerifier());
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         this.authenticationManager = authenticationManagerBean();
-        auth.userDetailsService(userDetailsService);
+        auth.userDetailsService(userDetailsService).and()
+            .authenticationProvider(jwtAuthenticationProvider());
     }
 
     @Override
@@ -97,7 +129,7 @@ public class JwtWebSecurityConfig extends WebSecurityConfigurerAdapter {
         // 无权访问
         //httpSecurity.exceptionHandling().accessDeniedHandler(jwtAccessDeniedHandler);
         httpSecurity
-            .addFilterBefore(jwtTokenFilter(),
+            .addFilterBefore(tokenAuthenticationFilter(),
                 UsernamePasswordAuthenticationFilter.class);
         httpSecurity.headers().cacheControl();
     }

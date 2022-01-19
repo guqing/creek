@@ -39,8 +39,8 @@ public class OAuthController {
 
     @PostMapping("/refresh")
     public ResultEntity<AccessToken> refreshToken(@RequestBody @Valid RefreshTokenParam refreshTokenParam) {
-        AccessToken accessToken = tokenProvider.refreshToken(refreshTokenParam.getToken());
-        return ResultEntity.ok(accessToken);
+        //AccessToken accessToken = tokenProvider.refreshToken(refreshTokenParam.getToken());
+        return ResultEntity.ok(null);
     }
 
     @GetMapping("/whoami")
