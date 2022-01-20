@@ -47,10 +47,9 @@ public class JwtAuthenticationConverter implements Converter<DecodedJWT,
     }
 
     /**
-     * Sets the principal claim name. Defaults to {@link JwtClaimNames#SUB}.
+     * Sets the principal claim name. Defaults to {@link PublicClaims#SUBJECT}.
      *
      * @param principalClaimName The principal claim name
-     * @since 5.4
      */
     public void setPrincipalClaimName(String principalClaimName) {
         Assert.hasText(principalClaimName, "principalClaimName cannot be empty");
