@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import xyz.guqing.creek.security.JwtAuthenticationProvider;
 import xyz.guqing.creek.security.handler.JwtAuthenticationFailureHandler;
 import xyz.guqing.creek.security.handler.JwtLogoutSuccessHandler;
