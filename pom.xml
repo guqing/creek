@@ -16,7 +16,7 @@
     <properties>
         <java.version>11</java.version>
         <ip2region.version>1.7</ip2region.version>
-        <guava.version>29.0-jre</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <mybatis-plus.version>3.3.1.tmp</mybatis-plus.version>
     </properties>
 
