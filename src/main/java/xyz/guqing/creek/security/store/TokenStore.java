@@ -29,8 +29,9 @@ public interface TokenStore {
      * Store an access token.
      *
      * @param token The token to store.
+     * @param authentication the authentication key for the access token
      */
-    void storeAccessToken(OAuthAccessToken token);
+    void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication);
 
     /**
      * Read an access token from the store.
@@ -45,14 +46,15 @@ public interface TokenStore {
      *
      * @param token The token to remove from the store.
      */
-    void removeAccessToken(OAuthAccessToken token);
+    void removeAccessToken(OAuth2AccessToken token);
 
     /**
      * Store the specified refresh token in the store.
      *
      * @param refreshToken The refresh token to store.
+     * @param authentication
      */
-    void storeRefreshToken(OauthRefreshToken refreshToken);
+    void storeRefreshToken(OAuth2RefreshToken refreshToken, OAuth2Authentication authentication);
 
     /**
      * Read a refresh token from the store.
@@ -60,20 +62,20 @@ public interface TokenStore {
      * @param tokenValue The value of the token to read.
      * @return The token.
      */
-    OauthRefreshToken readRefreshToken(String tokenValue);
+    OAuth2RefreshToken readRefreshToken(String tokenValue);
 
     /**
      * @param token a refresh token
      * @return the authentication originally used to grant the refresh token
      */
-    OAuthAccessToken readAuthenticationForRefreshToken(OauthRefreshToken token);
+    OAuth2Authentication readAuthenticationForRefreshToken(OAuth2RefreshToken token);
 
     /**
      * Remove a refresh token from the store.
      *
      * @param token The token to remove from the store.
      */
-    void removeRefreshToken(OauthRefreshToken token);
+    void removeRefreshToken(OAuth2RefreshToken token);
 
     /**
      * Remove an access token using a refresh token. This functionality is necessary so refresh tokens can't be used to
@@ -81,7 +83,7 @@ public interface TokenStore {
      *
      * @param refreshToken The refresh token.
      */
-    void removeAccessTokenUsingRefreshToken(OauthRefreshToken refreshToken);
+    void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken);
 
     /**
      * Retrieve an access token stored against the provided authentication key, if it exists.
@@ -90,7 +92,7 @@ public interface TokenStore {
      *
      * @return the access token or null if there was none
      */
-    OAuthAccessToken getAccessToken(OAuthAccessToken authentication);
+    OAuth2AccessToken getAccessToken(OAuth2Authentication authentication);
 
     /**
      * @param username the username to search
