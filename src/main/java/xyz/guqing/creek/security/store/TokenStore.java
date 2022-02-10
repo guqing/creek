@@ -15,7 +15,7 @@ public interface TokenStore {
      * @param token The token value under which the authentication is stored.
      * @return The authentication, or null if none.
      */
-    OAuthAccessToken readAuthentication(OAuthAccessToken token);
+    OAuth2Authentication readAuthentication(OAuth2AccessToken token);
 
     /**
      * Read the authentication stored under the specified token value.
@@ -23,7 +23,7 @@ public interface TokenStore {
      * @param token The token value under which the authentication is stored.
      * @return The authentication, or null if none.
      */
-    OAuthAccessToken readAuthentication(String token);
+    OAuth2Authentication readAuthentication(String token);
 
     /**
      * Store an access token.
@@ -39,7 +39,7 @@ public interface TokenStore {
      * @param tokenValue The token value.
      * @return The access token to read.
      */
-    OAuthAccessToken readAccessToken(String tokenValue);
+    OAuth2AccessToken readAccessToken(String tokenValue);
 
     /**
      * Remove an access token from the store.
@@ -98,5 +98,5 @@ public interface TokenStore {
      * @param username the username to search
      * @return a collection of access tokens
      */
-    Collection<OAuthAccessToken> findTokensByUsername(String username);
+    Collection<OAuth2AccessToken> findTokensByUsername(String username);
 }
