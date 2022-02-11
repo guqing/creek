@@ -98,5 +98,5 @@ public interface TokenStore {
      * @param username the username to search
      * @return a collection of access tokens
      */
-    Collection<OAuth2AccessToken> findTokensByUsername(String username);
+    Collection<OAuth2AccessToken> findTokensByUserName(String username);
 }
