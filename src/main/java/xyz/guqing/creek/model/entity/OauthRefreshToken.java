@@ -1,5 +1,6 @@
-package xyz.guqing.creek.security.store;
+package xyz.guqing.creek.model.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  * @since 2022-01-23
  */
 @Data
+@TableName("oauth_refresh_token")
 public class OauthRefreshToken {
     private String tokenId;
     private String token;
