@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * @author guqing
+ */
 @Slf4j
 public class JdbcTokenStore implements TokenStore {
 
@@ -43,6 +46,9 @@ public class JdbcTokenStore implements TokenStore {
 
         try {
             //select token_id, authentication from oauth_access_token where token_id = ?
+            OauthAccessToken oauthAccessToken =
+                oauthAccessTokenMapper.selectById(extractTokenKey(token));
+            authentication = deserializeAuthentication(oauthAccessToken.getAuthentication());
         } catch (IllegalArgumentException e) {
             log.warn("Failed to deserialize authentication", e);
             removeAccessToken(token);
@@ -81,6 +87,10 @@ public class JdbcTokenStore implements TokenStore {
         return new String(SerializationUtils.serialize(token));
     }
 
+    protected OAuth2Authentication deserializeAuthentication(String authentication) {
+        return SerializationUtils.deserialize(getBytes(authentication));
+    }
+
     @Override
     public OAuth2AccessToken readAccessToken(String tokenValue) {
         OAuth2AccessToken accessToken = null;
@@ -104,10 +114,6 @@ public class JdbcTokenStore implements TokenStore {
 
     protected OAuth2AccessToken deserializeAccessToken(String token) {
         return SerializationUtils.deserialize(getBytes(token));
-    }
-
-    protected OAuth2AccessToken deserializeAccessToken(byte[] token) {
-        return SerializationUtils.deserialize(token);
     }
 
     @Override
