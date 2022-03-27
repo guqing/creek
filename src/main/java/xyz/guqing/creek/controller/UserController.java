@@ -1,5 +1,6 @@
 package xyz.guqing.creek.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,7 +20,6 @@ import xyz.guqing.creek.model.support.*;
 import xyz.guqing.creek.service.UserService;
 import xyz.guqing.creek.utils.SecurityUserHelper;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**

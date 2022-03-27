@@ -1,5 +1,6 @@
 package xyz.guqing.creek.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +11,6 @@ import xyz.guqing.creek.model.params.UserGroupParam;
 import xyz.guqing.creek.model.support.ResultEntity;
 import xyz.guqing.creek.service.UserGroupService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**

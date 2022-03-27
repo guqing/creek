@@ -2,7 +2,7 @@ package xyz.guqing.creek.model.dto;
 
 import lombok.Data;
 import me.zhyd.oauth.model.AuthUser;
-import xyz.guqing.creek.security.AccessToken;
+import xyz.guqing.creek.model.entity.OauthAccessToken;
 
 /**
  * @author guqing
@@ -11,7 +11,7 @@ import xyz.guqing.creek.security.AccessToken;
 @Data
 public class SocialLoginDTO {
 
-    private AccessToken accessToken;
+    private OauthAccessToken accessToken;
     private AuthUser authUser;
     private Boolean isBind;
 }

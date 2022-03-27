@@ -1,11 +1,11 @@
 package xyz.guqing.creek.model.params;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import xyz.guqing.creek.model.entity.UserGroup;
 import xyz.guqing.creek.model.support.InputConverter;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 /**
  * @author guqing

@@ -1,9 +1,9 @@
 package xyz.guqing.creek.model.params;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Set;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import xyz.guqing.creek.model.entity.Credentials;
 import xyz.guqing.creek.model.support.InputConverter;

@@ -1,5 +1,6 @@
 package xyz.guqing.creek.listener;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.ApplicationListener;
 import org.springframework.lang.NonNull;
 import org.springframework.scheduling.annotation.Async;
@@ -12,7 +13,6 @@ import xyz.guqing.creek.service.UserService;
 import xyz.guqing.creek.utils.RegionAddressUtils;
 import xyz.guqing.creek.utils.CreekUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Map;
 

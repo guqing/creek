@@ -1,6 +1,8 @@
 package xyz.guqing.creek.controller;
 
 import com.xkcoding.justauth.AuthRequestFactory;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthCallback;
@@ -13,16 +15,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import xyz.guqing.creek.model.constant.StringConstant;
 import xyz.guqing.creek.model.dto.SocialLoginDTO;
+import xyz.guqing.creek.model.entity.OauthAccessToken;
 import xyz.guqing.creek.model.params.BindUserParam;
 import xyz.guqing.creek.model.params.SocialUserParam;
 import xyz.guqing.creek.model.support.ResultEntity;
-import xyz.guqing.creek.security.AccessToken;
 import xyz.guqing.creek.security.properties.LoginProperties;
 import xyz.guqing.creek.security.support.UserLoginService;
 import xyz.guqing.creek.utils.SecurityUserHelper;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -86,8 +86,8 @@ public class SocialLoginController {
      */
     @ResponseBody
     @PostMapping("sign/login")
-    public ResultEntity<AccessToken> signLogin(@RequestBody @Valid BindUserParam registerUser) {
-        AccessToken accessToken = this.userLoginService.socialSignLogin(registerUser);
+    public ResultEntity<OauthAccessToken> signLogin(@RequestBody @Valid BindUserParam registerUser) {
+        OauthAccessToken accessToken = this.userLoginService.socialSignLogin(registerUser);
         return ResultEntity.ok(accessToken);
     }
 

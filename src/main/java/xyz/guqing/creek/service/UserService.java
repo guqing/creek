@@ -1,6 +1,7 @@
 package xyz.guqing.creek.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.lang.NonNull;
 import xyz.guqing.creek.model.bo.CurrentUser;
 import xyz.guqing.creek.model.dto.UserDTO;
 import xyz.guqing.creek.model.dto.UserInfoDTO;
@@ -11,7 +12,6 @@ import xyz.guqing.creek.model.params.UserQuery;
 import xyz.guqing.creek.model.support.PageInfo;
 import xyz.guqing.creek.model.support.PageQuery;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -79,20 +79,20 @@ public interface UserService extends IService<User> {
      * @param password 密码
      * @return 如果正确返回{@code true},否则返回{@code false}
      */
-    boolean isCorrectByPassword(@NotNull String username, @NotNull String password);
+    boolean isCorrectByPassword(@NonNull String username, @NonNull String password);
 
     /**
      * 重置用户密码
      * @param username 用户名
      */
-    void resetPassword(@NotNull String username);
+    void resetPassword(@NonNull String username);
 
     /**
      * 更新用户状态
      * @param username 用户名
      * @param status 用户状态
      */
-    void updateStatus(@NotNull String username, UserStatusEnum status);
+    void updateStatus(@NonNull String username, UserStatusEnum status);
 
     /**
      * 根据用户名集合批量删除用户

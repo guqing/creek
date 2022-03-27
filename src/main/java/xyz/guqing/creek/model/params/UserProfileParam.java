@@ -1,14 +1,14 @@
 package xyz.guqing.creek.model.params;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import xyz.guqing.creek.model.constant.RegexpConstant;
 import xyz.guqing.creek.model.entity.User;
 import xyz.guqing.creek.model.support.InputConverter;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
 /**
  * 用户个人主页参数

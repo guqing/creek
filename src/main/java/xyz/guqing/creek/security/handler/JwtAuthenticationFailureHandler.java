@@ -1,10 +1,9 @@
 package xyz.guqing.creek.security.handler;
 
 import com.alibaba.fastjson.JSON;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -20,7 +19,7 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest,
-        HttpServletResponse httpServletResponse, AuthenticationException e)
+                                        HttpServletResponse httpServletResponse, AuthenticationException e)
         throws IOException {
         log.error(e.getMessage(), e);
         httpServletResponse.setContentType("application/json;charset=UTF-8");

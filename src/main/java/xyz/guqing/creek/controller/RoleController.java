@@ -2,6 +2,7 @@ package xyz.guqing.creek.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +18,6 @@ import xyz.guqing.creek.model.support.PageQuery;
 import xyz.guqing.creek.model.support.ResultEntity;
 import xyz.guqing.creek.service.RoleService;
 
-import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
