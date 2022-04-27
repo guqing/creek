@@ -1,38 +1,37 @@
 server:
-  port: 8086
+  port: 8080
 spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
-  datasource:
-    # 使用h2数据库
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:~/.creek/db/creek
-    username: root
-    password: 123456
-  h2:
-    console:
-      settings:
-        web-allow-others: true
-      path: /h2-console
+  output:
+    ansi:
+      enabled: always
+  devtools:
+    restart:
       enabled: true
-  sql:
-    init:
-      schema-locations: classpath:db/schema-h2.sql
-      data-locations: classpath:db/data-h2.sql
-justauth:
-  enabled: true
-  type:
-    github:
-      client-id:
-      client-secret:
-      redirect-uri:
-    weibo:
-      client-id:
-      client-secret:
-      redirect-uri:
-auth0:
-  issuer: creek
-  apiAudience: http://your-audience
+      log-condition-evaluation-delta: false
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+
+    # H2 database configuration.
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:~/creek-dev/db/creek;AUTO_SERVER=TRUE
+    username: admin
+    password: 123456
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+creek:
+  security:
+    oauth2:
+      jwt:
+        public-key-location: classpath:app.pub
+        private-key-location: classpath:app.key
 logging:
   level:
-    xyz.guqing.creek: debug
+    xyz.guqing.creek: DEBUG
+    org.hibernate: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+    org.hibernate.type.descriptor.sql.BasicExtractor: INFO
