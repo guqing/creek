@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.0.0-M1'
+    id 'org.springframework.boot' version '3.0.0-M3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
@@ -29,7 +29,7 @@ configurations {
 bootJar {
     launchScript()
     manifest {
-        attributes "Implementation-Title": "Halo Application",
+        attributes "Implementation-Title": "Creek Application",
                 "Implementation-Version": archiveVersion
     }
 }
