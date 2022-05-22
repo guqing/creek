@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import run.halo.app.extension.exception.ExtensionConvertException;
-import run.halo.app.extension.exception.SchemaViolationException;
-import run.halo.app.extension.store.ExtensionStore;
+import xyz.guqing.creek.extension.exception.ExtensionConvertException;
+import xyz.guqing.creek.extension.exception.SchemaViolationException;
+import xyz.guqing.creek.extension.store.ExtensionStore;
 
 /**
  * JSON implementation of ExtensionConverter.

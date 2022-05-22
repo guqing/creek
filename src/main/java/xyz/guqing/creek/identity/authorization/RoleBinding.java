@@ -2,9 +2,9 @@ package xyz.guqing.creek.identity.authorization;
 
 import java.util.List;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
-import xyz.guqing.creek.infra.types.ObjectMeta;
-import xyz.guqing.creek.infra.types.TypeMeta;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import xyz.guqing.creek.extension.AbstractExtension;
 
 /**
  * RoleBinding references a role, but does not contain it.  It can reference a Role in the
@@ -16,12 +16,9 @@ import xyz.guqing.creek.infra.types.TypeMeta;
  * @since 2.0.0
  */
 @Data
-public class RoleBinding {
-
-    TypeMeta typeMeta;
-
-    ObjectMeta objectMeta;
-
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class RoleBinding extends AbstractExtension {
     /**
      * Subjects holds references to the objects the role applies to.
      */
@@ -33,11 +30,4 @@ public class RoleBinding {
      * If the RoleRef cannot be resolved, the Authorizer must return an error.
      */
     RoleRef roleRef;
-
-    public String getName() {
-        if (objectMeta == null) {
-            return StringUtils.EMPTY;
-        }
-        return objectMeta.getName();
-    }
 }

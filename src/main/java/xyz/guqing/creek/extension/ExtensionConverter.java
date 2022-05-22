@@ -1,6 +1,6 @@
 package xyz.guqing.creek.extension;
 
-import run.halo.app.extension.store.ExtensionStore;
+import xyz.guqing.creek.extension.store.ExtensionStore;
 
 /**
  * ExtensionConverter contains bidirectional conversions between Extension and ExtensionStore.
