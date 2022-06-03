@@ -1,19 +1,15 @@
 package xyz.guqing.creek.identity.authorization;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * PolicyRule holds information that describes a policy rule, but does not contain information
- * about who the rule applies to or which namespace the rule applies to.
+ * about whom the rule applies to or which namespace the rule applies to.
  *
  * @author guqing
  * @since 2.0.0
  */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class PolicyRule {
 
     /**
@@ -53,6 +49,22 @@ public class PolicyRule {
      */
     String[] verbs;
 
+    public PolicyRule(String[] apiGroups, String[] resources, String[] resourceNames,
+        String[] nonResourceURLs, String[] verbs) {
+        this.apiGroups = nullElseEmpty(apiGroups);
+        this.resources = nullElseEmpty(resources);
+        this.resourceNames = nullElseEmpty(resourceNames);
+        this.nonResourceURLs = nullElseEmpty(nonResourceURLs);
+        this.verbs = nullElseEmpty(verbs);
+    }
+
+    String[] nullElseEmpty(String... items) {
+        if (items == null) {
+            return new String[] {};
+        }
+        return items;
+    }
+
     public static class Builder {
         String[] apiGroups;
         String[] resources;
@@ -85,21 +97,8 @@ public class PolicyRule {
             return this;
         }
 
-        String[] nullElseEmpty(String... items) {
-            if (items == null) {
-                return new String[] {};
-            }
-            return items;
-        }
-
         public PolicyRule build() {
-            return new PolicyRule(
-                nullElseEmpty(apiGroups),
-                nullElseEmpty(resources),
-                nullElseEmpty(resourceNames),
-                nullElseEmpty(nonResourceURLs),
-                nullElseEmpty(verbs)
-            );
+            return new PolicyRule(apiGroups, resources, resourceNames, nonResourceURLs, verbs);
         }
     }
 }

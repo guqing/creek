@@ -4,21 +4,24 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import xyz.guqing.creek.extension.AbstractExtension;
+import run.halo.app.extension.AbstractExtension;
+import run.halo.app.extension.GVK;
 
 /**
- * RoleBinding references a role, but does not contain it.  It can reference a Role in the
- * same namespace or a ClusterRole in the global namespace.
- * It adds who information via Subjects and namespace information by which namespace it exists
- * in.
+ * RoleBinding references a role, but does not contain it.
+ * It can reference a Role in the global.
+ * It adds who information via Subjects.
  *
  * @author guqing
  * @since 2.0.0
  */
 @Data
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@GVK(group = "", version = "v1alpha1", kind = "RoleBinding", plural = "rolebindings",
+    singular = "rolebinding")
 public class RoleBinding extends AbstractExtension {
+
     /**
      * Subjects holds references to the objects the role applies to.
      */
