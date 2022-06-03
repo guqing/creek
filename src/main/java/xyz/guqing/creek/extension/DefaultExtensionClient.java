@@ -10,8 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import xyz.guqing.creek.extension.store.ExtensionStore;
-import xyz.guqing.creek.extension.store.ExtensionStoreClient;
+import run.halo.app.extension.store.ExtensionStore;
+import run.halo.app.extension.store.ExtensionStoreClient;
 
 /**
  * DefaultExtensionClient is default implementation of ExtensionClient.
@@ -68,7 +68,7 @@ public class DefaultExtensionClient implements ExtensionClient {
 
     @Override
     public <E extends Extension> void create(E extension) {
-        extension.metadata().setCreationTimestamp(Instant.now());
+        extension.getMetadata().setCreationTimestamp(Instant.now());
         var extensionStore = converter.convertTo(extension);
         storeClient.create(extensionStore.getName(), extensionStore.getData());
     }
@@ -76,7 +76,7 @@ public class DefaultExtensionClient implements ExtensionClient {
     @Override
     public <E extends Extension> void update(E extension) {
         var extensionStore = converter.convertTo(extension);
-        Assert.notNull(extension.metadata().getVersion(),
+        Assert.notNull(extension.getMetadata().getVersion(),
             "Extension version must not be null when updating");
         storeClient.update(extensionStore.getName(), extensionStore.getVersion(),
             extensionStore.getData());
