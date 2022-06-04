@@ -97,6 +97,7 @@ public class PersonalAccessTokenUtils {
     private static String crc32(byte[] array) {
         CRC32 crc32 = new CRC32();
         crc32.update(array);
-        return Long.toHexString(crc32.getValue());
+        String crcHex = Long.toHexString(crc32.getValue());
+        return StringUtils.leftPad(crcHex, 8, '0');
     }
 }
