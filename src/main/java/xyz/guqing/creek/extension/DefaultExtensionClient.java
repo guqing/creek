@@ -10,8 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import run.halo.app.extension.store.ExtensionStore;
-import run.halo.app.extension.store.ExtensionStoreClient;
+import xyz.guqing.creek.extension.store.ExtensionStore;
+import xyz.guqing.creek.extension.store.ExtensionStoreClient;
 
 /**
  * DefaultExtensionClient is default implementation of ExtensionClient.

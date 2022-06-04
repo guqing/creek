@@ -13,8 +13,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import run.halo.app.extension.exception.ExtensionException;
-import run.halo.app.extension.exception.SchemeNotFoundException;
+import xyz.guqing.creek.extension.exception.ExtensionException;
+import xyz.guqing.creek.extension.exception.SchemeNotFoundException;
 
 /**
  * Schemes is aggregation of schemes and responsible for managing and organizing schemes.

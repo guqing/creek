@@ -2,7 +2,7 @@ package xyz.guqing.creek.identity.authorization;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import run.halo.app.extension.ExtensionClient;
+import xyz.guqing.creek.extension.ExtensionClient;
 
 /**
  * @author guqing

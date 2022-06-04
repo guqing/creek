@@ -5,8 +5,8 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import run.halo.app.extension.AbstractExtension;
-import run.halo.app.extension.GVK;
+import xyz.guqing.creek.extension.AbstractExtension;
+import xyz.guqing.creek.extension.GVK;
 
 /**
  * @author guqing
